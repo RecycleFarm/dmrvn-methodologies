@@ -98,7 +98,8 @@ yarn dmrvn:publish-tumbler --cloud --package ../../dmrvn-methodologies/dist/tumb
 | 웹 2·3단계 체크리스트 | manifest 승인·정책 hash와 별도 WASM bytes hash 통과 |
 | Attestor 콘솔 | `Methodology verified`, `WASM calculation completed`, 입력 850, 결과 24 gCO2e |
 | Aggregator 콘솔 | `Methodology verified`, `WASM recomputation completed`, 같은 입력·결과 |
-| Greenfield Final Report | `execution.methodology`, `wasmHash`, `inputs`, `outputs` |
+| `dmrvnTasks/{claimId}.execution` | `methodology`, `methodologyHash`, `wasmHash`, `inputs` |
+| Greenfield Final Report | 동일한 방법론 hash, `outputs`, Observation 서명, manifest/WASM 저장 경로 |
 | 온체인·웹 최종 조회 | VALID, 보고서와 outputHash/reportHash 일치 |
 
 변조 확인은 승인본을 덮어쓰지 말고 임시 패키지 사본에서 수행한다. `.wasm`만 변경하면 hash 불일치로 `--check`가 실패해야 한다. version을 올리지 않은 수정 패키지는 게시가 거부되어야 한다. v3 기본값으로 되돌릴 때는 v3 보존 패키지를 `--activate`로 다시 게시한다. 이미 생성한 v4 Claim의 버전은 바뀌지 않는다.
