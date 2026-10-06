@@ -1,0 +1,52 @@
+{
+  "builtAt": "2026-10-06T06:42:00.244Z",
+  "sourceCommit": "f78f2b07247247c4528e16df4bb81cc9e8eade92",
+  "nodeVersion": "v22.23.3",
+  "runUrl": "https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/37425195166",
+  "packages": [
+    {
+      "methodology": {
+        "id": 2001,
+        "version": 3
+      },
+      "activityId": 1001,
+      "path": "builds/tumbler/2001-v3",
+      "wasmBytes": 48,
+      "wasmHash": "0xcff1a1905d2541aabdbff86181bf0314b6ad5b93fb175469a332b89ee6e9ba84",
+      "methodologyHash": "0x9591f325e7ce716ab9a4a61a21cc5e5a3afbcf814092636f0a861febc236b03c",
+      "compiler": "wabt 1.0.37",
+      "vectors": 6,
+      "inputSchema": {
+        "waterIntakeMl": {
+          "max": 1000000,
+          "min": 1,
+          "type": "integer",
+          "unit": "mL"
+        }
+      },
+      "outputSchema": {
+        "fields": [
+          {
+            "aggregation": "sum",
+            "dimension": "climate-impact",
+            "id": "avoided_pet_co2e",
+            "kind": "quantity",
+            "required": true,
+            "scale": 0,
+            "unit": "gCO2e",
+            "valueType": "integer"
+          }
+        ],
+        "primaryOutputId": "avoided_pet_co2e"
+      },
+      "runtime": {
+        "abiVersion": 1,
+        "export": "compute",
+        "inputOrder": [
+          "waterIntakeMl"
+        ],
+        "kind": "WASM_V1"
+      }
+    }
+  ]
+}

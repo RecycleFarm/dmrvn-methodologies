@@ -15,7 +15,19 @@ GitHub 빌드 성공은 Registry 승인이나 운영 기본 버전 변경을 뜻
 ## 검증된 빌드
 
 <!-- builds:start -->
-다음 기본 브랜치 workflow 성공 후 자동 갱신됩니다.
+검증 시각: 2026-10-06T06:42:00.244Z (UTC)
+소스 커밋: `f78f2b07247247c4528e16df4bb81cc9e8eade92` · Node v22.23.3
+[GitHub Actions 실행 기록](https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/37425195166)
+[기계 판독용 catalog.json](builds/catalog.json)
+
+| 방법론 | 활동 | WASM | manifest | 정책 | 빌드 정보 |
+|---|---|---|---|---|---|
+| 2001/v3 | 1001 | [48 bytes](builds/tumbler/2001-v3/methodology.wasm) | [JSON](builds/tumbler/2001-v3/manifest.json) | [JSON](builds/tumbler/2001-v3/device-policy.json) | [wabt 1.0.37, 6 vectors](builds/tumbler/2001-v3/build-info.json) |
+
+### 2001/v3
+
+- wasmHash: `0xcff1a1905d2541aabdbff86181bf0314b6ad5b93fb175469a332b89ee6e9ba84`
+- methodologyHash: `0x9591f325e7ce716ab9a4a61a21cc5e5a3afbcf814092636f0a861febc236b03c`
 <!-- builds:end -->
 
 ## 수정·검증

@@ -1,0 +1,1 @@
+[{"expected":0,"inputs":{"waterIntakeMl":1}},{"expected":0,"inputs":{"waterIntakeMl":499}},{"expected":20,"inputs":{"waterIntakeMl":500}},{"expected":20,"inputs":{"waterIntakeMl":850}},{"expected":40,"inputs":{"waterIntakeMl":1000}},{"expected":40000,"inputs":{"waterIntakeMl":1000000}}]
