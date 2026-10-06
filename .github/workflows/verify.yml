@@ -1,5 +1,15 @@
 name: Verify methodology packages
-on: [push, pull_request]
+on:
+  push:
+    paths-ignore:
+      - README.md
+      - 'builds/**'
+  pull_request:
+permissions:
+  contents: write
+concurrency:
+  group: methodology-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -11,5 +21,17 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm test
-      - run: npm run build
-      - run: npm run verify -- dist/tumbler-2001-v3
+      - run: npm run verify:all
+      - name: Publish verified packages and README catalog
+        if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          node scripts/update-build-catalog.js
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md builds/
+          if ! git diff --cached --quiet; then
+            git commit -m 'docs: update verified WASM build catalog'
+            git push origin "HEAD:$BRANCH"
+          fi
