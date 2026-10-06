@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "methodology": { "id": 2001, "version": 3 },
+  "activityId": 1001,
+  "runtime": { "kind": "WASM_V1", "abiVersion": 1, "export": "compute", "inputOrder": ["waterIntakeMl"] },
+  "inputSchema": { "waterIntakeMl": { "type": "integer", "min": 1, "max": 1000000, "unit": "mL" } },
+  "outputSchema": {
+    "primaryOutputId": "avoided_pet_co2e",
+    "fields": [{ "id": "avoided_pet_co2e", "kind": "quantity", "valueType": "integer", "unit": "gCO2e", "scale": 0, "dimension": "climate-impact", "aggregation": "sum", "required": true }]
+  },
+  "coefficientNotice": "Simulator only: 20 gCO2e per 500 mL PET bottle equivalent; not a certified carbon-credit factor.",
+  "evidenceSchema": "DEVICE_ATTESTED_TUMBLER_BATCH_V1",
+  "aggregation": "SUM_VERIFIED_WATER_BEFORE_WASM"
+}

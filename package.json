@@ -1,0 +1,13 @@
+{
+  "name": "dmrvn-methodologies",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Public DMRVN methodology sources and reproducible WASM packages",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node --test",
+    "verify": "node scripts/verify.js"
+  },
+  "dependencies": { "ethers": "5.8.0", "wabt": "1.0.37" }
+}
