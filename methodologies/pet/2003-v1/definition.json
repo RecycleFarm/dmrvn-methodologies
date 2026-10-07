@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "methodology": { "id": 2003, "version": 1 },
+  "activityId": 1003,
+  "runtime": { "kind": "WASM_V1", "abiVersion": 1, "export": "compute", "inputOrder": ["petBottleCount"] },
+  "inputSchema": { "petBottleCount": { "type": "integer", "min": 1, "max": 100000, "unit": "count" } },
+  "outputSchema": {
+    "primaryOutputId": "estimated_co2e",
+    "fields": [{ "id": "estimated_co2e", "kind": "quantity", "valueType": "integer", "unit": "gCO2e", "scale": 0, "dimension": "climate-impact", "aggregation": "sum", "required": true }]
+  },
+  "coefficientNotice": "Integration test only: 20 gCO2e per partner-declared PET bottle. Does not prove disposal, recycling or certified carbon reduction.",
+  "evidenceSchema": "PARTNER_DECLARED_INPUTS_V1",
+  "evidenceValidation": { "kind": "DECLARED_INPUTS_V1", "version": 1 }
+}

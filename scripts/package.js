@@ -38,7 +38,10 @@ async function verifyPackage({ manifest, wasmBytes, policy, vectors }) {
   if (wasmBytes.length > 65536 || !WebAssembly.validate(wasmBytes)) throw new Error('Invalid or oversized WASM');
   assertBoundedWasmMemory(wasmBytes);
   if (ethers.utils.keccak256(wasmBytes) !== manifest.wasmHash) throw new Error('WASM hash mismatch');
-  if (hashJson(policy) !== manifest.devicePolicyHash) throw new Error('Policy hash mismatch');
+  if (manifest.evidenceValidation?.kind === 'DECLARED_INPUTS_V1') {
+    if (manifest.evidenceValidation.version !== 1 || manifest.evidenceSchema !== 'PARTNER_DECLARED_INPUTS_V1'
+      || manifest.devicePolicyHash || policy) throw new Error('Invalid declared-input validation profile');
+  } else if (!policy || hashJson(policy) !== manifest.devicePolicyHash) throw new Error('Policy hash mismatch');
   if (manifest.runtime.kind !== 'WASM_V1' || manifest.runtime.abiVersion !== 1 || manifest.runtime.export !== 'compute') throw new Error('Unsupported ABI');
   const module = await WebAssembly.compile(wasmBytes);
   if (WebAssembly.Module.imports(module).length) throw new Error('Imports are not allowed');
@@ -78,10 +81,11 @@ async function buildPackage(sourceDir, policyFile) {
     fs.readFile(path.join(sourceDir, 'definition.json'), 'utf8').then(JSON.parse),
     fs.readFile(path.join(sourceDir, 'methodology.wat'), 'utf8'),
     fs.readFile(path.join(sourceDir, 'vectors.json'), 'utf8').then(JSON.parse),
-    fs.readFile(policyFile, 'utf8').then(JSON.parse),
+    policyFile ? fs.readFile(policyFile, 'utf8').then(JSON.parse) : Promise.resolve(null),
   ]);
   const wasmBytes = await compile(source);
-  const manifest = { ...definition, wasmHash: ethers.utils.keccak256(wasmBytes), devicePolicyHash: hashJson(policy) };
+  const manifest = { ...definition, wasmHash: ethers.utils.keccak256(wasmBytes),
+    ...(policy ? { devicePolicyHash: hashJson(policy) } : {}) };
   const verification = await verifyPackage({ manifest, wasmBytes, policy, vectors });
   return { manifest, wasmBytes, policy, vectors, verification, buildInfo: {
     compiler: 'wabt', compilerVersion: require('wabt/package.json').version,

@@ -24,13 +24,14 @@ async function discoverPackages(root) {
       identities.add(identity);
       const config = names.has('package-config.json')
         ? JSON.parse(await fs.readFile(path.join(directory, 'package-config.json'), 'utf8')) : {};
+      const declared = definition.evidenceValidation?.kind === 'DECLARED_INPUTS_V1';
       const policyFile = config.policyFile || 'device-policy.json';
       if (typeof policyFile !== 'string' || path.isAbsolute(policyFile)) throw new Error(`Policy path must be relative: ${directory}`);
       const policy = path.resolve(directory, policyFile);
       const relative = path.relative(root, policy);
       if (relative.startsWith(`..${path.sep}`) || relative === '..') throw new Error(`Policy must be inside repository: ${directory}`);
-      await fs.access(policy);
-      packages.push({ source: directory, policy, identity });
+      if (!declared) await fs.access(policy);
+      packages.push({ source: directory, policy: declared ? null : policy, identity });
     }
     for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
       if (entry.isDirectory() && !entry.name.startsWith('.')) await visit(path.join(directory, entry.name));

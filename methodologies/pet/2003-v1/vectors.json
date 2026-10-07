@@ -1,0 +1,5 @@
+[
+  { "inputs": { "petBottleCount": 1 }, "expected": 20 },
+  { "inputs": { "petBottleCount": 3 }, "expected": 60 },
+  { "inputs": { "petBottleCount": 100000 }, "expected": 2000000 }
+]

@@ -16,14 +16,16 @@ async function updateCatalog(root, metadata) {
     const build = JSON.parse(await fs.readFile(path.join(dist, 'build-info.json'), 'utf8'));
     const target = path.join(root, 'builds', relative);
     await fs.mkdir(target, { recursive: true });
-    for (const name of ['manifest.json', 'methodology.wasm', 'device-policy.json', 'vectors.json', 'build-info.json']) {
+    for (const name of ['manifest.json', 'methodology.wasm', ...(manifest.devicePolicyHash ? ['device-policy.json'] : []), 'vectors.json', 'build-info.json']) {
       await fs.copyFile(path.join(dist, name), path.join(target, name));
     }
     catalog.push({ methodology: manifest.methodology, activityId: manifest.activityId,
       path: `builds/${relative.split(path.sep).join('/')}`, wasmBytes: (await fs.stat(path.join(dist, 'methodology.wasm'))).size,
       wasmHash: manifest.wasmHash, methodologyHash: build.methodologyHash,
       compiler: `${build.compiler} ${build.compilerVersion}`, vectors: build.vectors,
-      inputSchema: manifest.inputSchema, outputSchema: manifest.outputSchema, runtime: manifest.runtime });
+      inputSchema: manifest.inputSchema, outputSchema: manifest.outputSchema, runtime: manifest.runtime,
+      ...(manifest.evidenceValidation ? { evidenceValidation: manifest.evidenceValidation } : {}),
+      hasDevicePolicy: Boolean(manifest.devicePolicyHash) });
   }
   const record = { ...metadata, packages: catalog };
   await fs.writeFile(path.join(root, 'builds/catalog.json'), `${JSON.stringify(record, null, 2)}\n`);
@@ -34,7 +36,7 @@ async function updateCatalog(root, metadata) {
     '| 방법론 | 활동 | WASM | manifest | 정책 | 빌드 정보 |',
     '|---|---|---|---|---|---|'];
   for (const item of catalog) {
-    lines.push(`| ${item.methodology.id}/v${item.methodology.version} | ${item.activityId} | [${item.wasmBytes} bytes](${item.path}/methodology.wasm) | [JSON](${item.path}/manifest.json) | [JSON](${item.path}/device-policy.json) | [${item.compiler}, ${item.vectors} vectors](${item.path}/build-info.json) |`);
+    lines.push(`| ${item.methodology.id}/v${item.methodology.version} | ${item.activityId} | [${item.wasmBytes} bytes](${item.path}/methodology.wasm) | [JSON](${item.path}/manifest.json) | ${item.hasDevicePolicy ? `[JSON](${item.path}/device-policy.json)` : 'Not required (declared inputs)'} | [${item.compiler}, ${item.vectors} vectors](${item.path}/build-info.json) |`);
   }
   for (const item of catalog) {
     lines.push('', `### ${item.methodology.id}/v${item.methodology.version}`, '',
