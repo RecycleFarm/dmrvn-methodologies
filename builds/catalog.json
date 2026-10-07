@@ -1,9 +1,58 @@
 {
-  "builtAt": "2026-10-06T06:42:00.244Z",
-  "sourceCommit": "f78f2b07247247c4528e16df4bb81cc9e8eade92",
+  "builtAt": "2026-10-07T07:19:02.397Z",
+  "sourceCommit": "a450d56b95cf1fd26f8434b10a4b8c2da938e021",
   "nodeVersion": "v22.23.3",
-  "runUrl": "https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/37425195166",
+  "runUrl": "https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/37586551652",
   "packages": [
+    {
+      "methodology": {
+        "id": 2003,
+        "version": 1
+      },
+      "activityId": 1003,
+      "path": "builds/pet/2003-v1",
+      "wasmBytes": 44,
+      "wasmHash": "0x60265f20ca003ae4b20f0bca18f73d0d4e9bb7c9497627d7f680113dac4c91d9",
+      "methodologyHash": "0xdcc09ee621f2e388dd858f8f7399dbf2725cbec3526d52b0dd06909da892ff77",
+      "compiler": "wabt 1.0.37",
+      "vectors": 3,
+      "inputSchema": {
+        "petBottleCount": {
+          "max": 100000,
+          "min": 1,
+          "type": "integer",
+          "unit": "count"
+        }
+      },
+      "outputSchema": {
+        "fields": [
+          {
+            "aggregation": "sum",
+            "dimension": "climate-impact",
+            "id": "estimated_co2e",
+            "kind": "quantity",
+            "required": true,
+            "scale": 0,
+            "unit": "gCO2e",
+            "valueType": "integer"
+          }
+        ],
+        "primaryOutputId": "estimated_co2e"
+      },
+      "runtime": {
+        "abiVersion": 1,
+        "export": "compute",
+        "inputOrder": [
+          "petBottleCount"
+        ],
+        "kind": "WASM_V1"
+      },
+      "evidenceValidation": {
+        "kind": "DECLARED_INPUTS_V1",
+        "version": 1
+      },
+      "hasDevicePolicy": false
+    },
     {
       "methodology": {
         "id": 2001,
@@ -46,7 +95,8 @@
           "waterIntakeMl"
         ],
         "kind": "WASM_V1"
-      }
+      },
+      "hasDevicePolicy": true
     }
   ]
 }

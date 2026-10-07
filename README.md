@@ -22,14 +22,20 @@ GitHub 빌드 성공은 Registry 승인이나 운영 기본 버전 변경을 뜻
 ## 검증된 빌드
 
 <!-- builds:start -->
-검증 시각: 2026-10-06T06:42:00.244Z (UTC)
-소스 커밋: `f78f2b07247247c4528e16df4bb81cc9e8eade92` · Node v22.23.3
-[GitHub Actions 실행 기록](https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/37425195166)
+검증 시각: 2026-10-07T07:19:02.397Z (UTC)
+소스 커밋: `a450d56b95cf1fd26f8434b10a4b8c2da938e021` · Node v22.23.3
+[GitHub Actions 실행 기록](https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/37586551652)
 [기계 판독용 catalog.json](builds/catalog.json)
 
 | 방법론 | 활동 | WASM | manifest | 정책 | 빌드 정보 |
 |---|---|---|---|---|---|
+| 2003/v1 | 1003 | [44 bytes](builds/pet/2003-v1/methodology.wasm) | [JSON](builds/pet/2003-v1/manifest.json) | Not required (declared inputs) | [wabt 1.0.37, 3 vectors](builds/pet/2003-v1/build-info.json) |
 | 2001/v3 | 1001 | [48 bytes](builds/tumbler/2001-v3/methodology.wasm) | [JSON](builds/tumbler/2001-v3/manifest.json) | [JSON](builds/tumbler/2001-v3/device-policy.json) | [wabt 1.0.37, 6 vectors](builds/tumbler/2001-v3/build-info.json) |
+
+### 2003/v1
+
+- wasmHash: `0x60265f20ca003ae4b20f0bca18f73d0d4e9bb7c9497627d7f680113dac4c91d9`
+- methodologyHash: `0xdcc09ee621f2e388dd858f8f7399dbf2725cbec3526d52b0dd06909da892ff77`
 
 ### 2001/v3
 
