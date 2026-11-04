@@ -1,8 +1,8 @@
 {
-  "builtAt": "2026-10-07T07:19:02.397Z",
-  "sourceCommit": "a450d56b95cf1fd26f8434b10a4b8c2da938e021",
-  "nodeVersion": "v22.23.3",
-  "runUrl": "https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/37586551652",
+  "builtAt": "2026-11-04T00:53:15.280Z",
+  "sourceCommit": "a7496c474b59e2f180da0248c5f94142d1817c92",
+  "nodeVersion": "v22.23.4",
+  "runUrl": "https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/41749995588",
   "packages": [
     {
       "methodology": {
@@ -97,6 +97,186 @@
         "kind": "WASM_V1"
       },
       "hasDevicePolicy": true
+    },
+    {
+      "methodology": {
+        "id": 2003,
+        "version": 3
+      },
+      "activityId": 1003,
+      "path": "builds/pet/2003-v3",
+      "wasmBytes": 89544,
+      "wasmHash": "0x8d7b604b5b02a30d6dda9927ec9657bb28fbccf15850958d6cdb20f3dd696b53",
+      "methodologyHash": "0x4aff2b393d0d4d9fd4e4144845a4ad4058ad693115ce8643310ae81144578370",
+      "compiler": "rustc rustc 1.85.1 (4eb161250 2025-03-15)",
+      "vectors": 2,
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "petBottleCount"
+        ],
+        "properties": {
+          "petBottleCount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100000
+          }
+        }
+      },
+      "outputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "estimated_co2e"
+        ],
+        "properties": {
+          "estimated_co2e": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "unit",
+              "scale"
+            ],
+            "properties": {
+              "value": {
+                "type": "string",
+                "pattern": "^[0-9]+$"
+              },
+              "unit": {
+                "const": "gCO2e"
+              },
+              "scale": {
+                "const": 0
+              }
+            }
+          }
+        }
+      },
+      "runtime": {
+        "kind": "JSON_WASM_V2",
+        "abiVersion": 2,
+        "export": "compute"
+      },
+      "evidenceValidation": {
+        "kind": "METHODOLOGY_JSON_SCHEMA_V1",
+        "version": 1
+      },
+      "hasDevicePolicy": false
+    },
+    {
+      "methodology": {
+        "id": 2004,
+        "version": 2
+      },
+      "activityId": 1004,
+      "path": "builds/solar/2004-v2",
+      "wasmBytes": 108215,
+      "wasmHash": "0x6c501cf75708c5116a51f7e064c62b7d7a2d08f95e2e22742211ba992b9450a8",
+      "methodologyHash": "0xae7b574f9f78c830ebbe407b51ad1b384b94ab10173dc651decdb5121792307c",
+      "compiler": "rustc rustc 1.85.1 (4eb161250 2025-03-15)",
+      "vectors": 2,
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "measurements",
+          "emissionsFactorTco2ePerMwh",
+          "projectEmissionsTco2e"
+        ],
+        "properties": {
+          "measurements": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "generationMwh"
+              ],
+              "properties": {
+                "generationMwh": {
+                  "type": "string",
+                  "pattern": "^[0-9]+\\.[0-9]{2}$"
+                }
+              }
+            }
+          },
+          "emissionsFactorTco2ePerMwh": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]{2}$"
+          },
+          "projectEmissionsTco2e": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          }
+        }
+      },
+      "outputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "baselineEmissions",
+          "projectEmissions",
+          "netReduction",
+          "measurementCount"
+        ],
+        "properties": {
+          "baselineEmissions": {
+            "$ref": "#/$defs/tco2e"
+          },
+          "projectEmissions": {
+            "$ref": "#/$defs/tco2e"
+          },
+          "netReduction": {
+            "$ref": "#/$defs/tco2e"
+          },
+          "measurementCount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "$defs": {
+          "tco2e": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "unit",
+              "scale"
+            ],
+            "properties": {
+              "value": {
+                "type": "string",
+                "pattern": "^[0-9]+$"
+              },
+              "unit": {
+                "const": "tCO2e"
+              },
+              "scale": {
+                "const": 4
+              }
+            }
+          }
+        }
+      },
+      "runtime": {
+        "kind": "JSON_WASM_V2",
+        "abiVersion": 2,
+        "export": "compute"
+      },
+      "evidenceValidation": {
+        "kind": "METHODOLOGY_JSON_SCHEMA_V1",
+        "version": 1
+      },
+      "hasDevicePolicy": false
     }
   ]
 }
