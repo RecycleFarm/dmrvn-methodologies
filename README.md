@@ -8,7 +8,14 @@ DMRVN 노드가 내려받아 실행할 방법론 소스와 검증된 WASM 패키
 2. 승인 Registry/Claim에 고정된 `methodologyHash`와 manifest를 비교하고, 모듈 bytes의 keccak256이 `wasmHash`와 같은지 확인합니다.
 3. manifest의 input schema와 ABI에 따라 실행하고 output schema로 결과를 해석합니다.
 
-현재 ABI: `compute(i32) -> i32`, imports 없음. 입력 이름·순서와 출력 단위는 manifest가 정의합니다.
+기존 패키지는 legacy ABI를 유지합니다. 신규 범용 방법론은 `JSON_WASM_V2`를 사용하며 Rust 툴체인은 [`wasm/json-abi/rust-toolchain.toml`](wasm/json-abi/rust-toolchain.toml)에 고정합니다. 신규 ABI는 `memory`, `alloc(length)`, `compute(inputPointer, inputLength)`, `result_len()`, `dealloc(pointer, length)`를 export하고 imports를 허용하지 않습니다. 입력·출력은 UTF-8 JSON 객체이며 manifest의 JSON Schema 2020-12로 검사합니다. 이 실행기와 ABI는 기존 legacy 패키지를 변경하지 않습니다.
+
+현재 JSON ABI 시험 패키지:
+
+| 방법론 | JSON 입력 예 | JSON 출력 예 | 의미 |
+|---|---|---|---|
+| PET 2003/v3 | `{"petBottleCount":3}` | `{"estimated_co2e":{"value":"60","unit":"gCO2e","scale":0}}` | 통합 시험용 계수이며 실제 재활용이나 공식 감축량 증명이 아님 |
+| 태양광 2004/v2 | 측정 배열, 배출계수, 프로젝트 배출량 | 기준선·프로젝트 배출량·순감축량 객체와 측정 건수 | JSON 입출력 통합 시험용이며 승인된 탄소 방법론이 아님 |
 
 | 샘플 | 입력 | 검증 | 결과 |
 |---|---|---|---|
@@ -45,12 +52,18 @@ GitHub 빌드 성공은 Registry 승인이나 운영 기본 버전 변경을 뜻
 
 ## 수정·검증
 
-새 버전은 `methodologies/<분류>/<ID>-v<version>/`에 추가합니다. 필수 파일은 `definition.json`, `methodology.wat`, `vectors.json`입니다. 기기 정책은 `device-policy.json` 또는 `package-config.json`의 상대경로 `policyFile`로 지정합니다. `DECLARED_INPUTS_V1`은 기기 정책을 사용하지 않습니다. 기존 승인 버전은 수정하지 않습니다.
+legacy ABI 방법론은 `methodologies/<분류>/<ID>-v<version>/`에 `definition.json`, `methodology.wat`, `vectors.json`을 둡니다. 신규 JSON ABI 방법론은 같은 디렉터리에 `definition.json`, `vectors.json`, `package-config.json`과 독립 `wasm/` Cargo crate를 둡니다. `package-config.json`은 `JSON_WASM_V2` 런타임과 crate 디렉터리를 지정하고, crate는 공용 ABI 매크로를 호출해 자기 계산 함수만 연결합니다. 새 방법론은 공용 Rust 런타임·빌더에 방법론 이름이나 계산 분기를 추가하지 않습니다. 새 입력·출력은 JSON Schema로 정의하고 Rust 계산 함수에서 JSON을 직접 파싱·생성합니다. 기존 승인 버전은 수정하지 않습니다.
 
 ```bash
+npm run setup:wasm
 npm ci --ignore-scripts
 npm test
 npm run verify:all
+npm run verify:reproducible
 ```
 
-workflow는 모든 방법론을 자동 빌드·검증합니다. 기본 브랜치에서 성공하면 `builds/`와 이 목록을 자동 커밋합니다. PR은 검증만 합니다. `wasmHash`는 bytes의 keccak256, `methodologyHash`는 manifest의 정렬 JSON/JCS 허용 부분집합 keccak256입니다. 상세 검증 근거는 [VALIDATION.md](VALIDATION.md)를 참고합니다.
+`ai-workspace`에서 PET·태양광을 서버리스/Attestor와 함께 검증할 때는 패키지를 다시 빌드한 뒤 `npm run sync:workspace-fixtures`를 실행합니다. 이 명령은 검증된 `manifest.json`, `methodology.wasm`, `vectors.json`을 두 저장소의 테스트 fixture에 그대로 복사하며 배포·Registry 등록은 하지 않습니다. CI나 리뷰 전에는 `npm run verify:workspace-fixtures`로 복사본의 바이트·버전 일치를 확인합니다. downstream 테스트는 방법론 버전과 WASM hash도 고정하므로 서로 다른 바이너리를 쓰면 실패합니다. 새 방법론 버전을 추가하면 이 동기화 목록과 해당 모듈의 fixture 기대값을 함께 갱신합니다.
+
+JSON ABI용 Rust 버전은 `rust-toolchain.toml`이 단일 기준입니다. `npm run setup:wasm`은 npm 패키지 설치 전에도 실행할 수 있으며, 해당 Rust 버전과 WASM 타깃만 준비합니다. 빌드는 PATH의 임의 Cargo 대신 pin된 Cargo/Rustc를 선택하며 lockfile을 강제합니다. 툴체인이나 WASM 타깃이 없거나 버전이 다르면 필요한 조치를 오류로 표시합니다. Cargo 의존성 캐시와 빌드 산출물은 기본적으로 저장소의 무시되는 경로에 둡니다. `CARGO_HOME`과 target 경로는 Rust 출력에서 고정 경로로 remap하며, 빌드기가 로컬 경로 누출을 검사합니다. 따라서 셸별 캐시·target 위치가 WASM bytes나 `wasmHash`에 영향을 주지 않아야 합니다. 의도적인 캐시 경로 변경은 `DMRVN_CARGO_HOME`, 격리 빌드 디렉터리는 `DMRVN_WASM_TARGET_DIR`로 지정할 수 있습니다.
+
+`npm run verify:all`은 legacy ABI와 JSON ABI 패키지를 모두 빌드하고 검증합니다. `npm run build:json`과 `npm run verify:json`은 JSON ABI만 따로 빌드하거나 기존 산출물을 검사할 때 사용할 수 있습니다. GitHub Actions도 같은 pin과 WASM 타깃을 설치한 뒤 테스트, 전체 검증, 재현성 검증을 실행합니다. 기본 브랜치에서 성공하면 `builds/`와 이 목록을 자동 커밋합니다. PR은 검증만 합니다. `wasmHash`는 bytes의 keccak256, `methodologyHash`는 manifest의 정렬 JSON/JCS 허용 부분집합 keccak256입니다. 상세 검증 근거는 [VALIDATION.md](VALIDATION.md)를 참고합니다.

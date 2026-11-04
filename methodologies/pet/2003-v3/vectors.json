@@ -1,0 +1,4 @@
+[
+  { "inputs": { "petBottleCount": 3 }, "expectedOutputs": { "estimated_co2e": { "value": "60", "unit": "gCO2e", "scale": 0 } } },
+  { "inputs": { "petBottleCount": 7 }, "expectedOutputs": { "estimated_co2e": { "value": "140", "unit": "gCO2e", "scale": 0 } } }
+]

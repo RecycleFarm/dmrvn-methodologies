@@ -1,0 +1,6 @@
+{
+  "jsonAbi": {
+    "runtime": "JSON_WASM_V2",
+    "crateDirectory": "wasm"
+  }
+}

@@ -6,12 +6,34 @@ on:
       - 'builds/**'
   pull_request:
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: methodology-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   verify:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install pinned Rust and WASM target
+        run: |
+          npm run setup:wasm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run verify:all
+      - run: npm run verify:reproducible
+
+  publish:
+    needs: verify
+    if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,10 +42,10 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: npm test
+      - run: npm run setup:wasm
       - run: npm run verify:all
+      - run: npm run verify:reproducible
       - name: Publish verified packages and README catalog
-        if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
         env:
           BRANCH: ${{ github.ref_name }}
         run: |

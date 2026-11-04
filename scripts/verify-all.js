@@ -3,6 +3,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { buildDirectory } = require('./build');
 const { verifyDirectory } = require('./verify');
+const { buildAll: buildJsonPackages, discoverPackages: discoverJsonPackages } = require('./json-abi-package');
 const REQUIRED_FILES = ['definition.json', 'methodology.wat', 'vectors.json'];
 
 async function discoverPackages(root) {
@@ -11,7 +12,9 @@ async function discoverPackages(root) {
   async function visit(directory) {
     const entries = await fs.readdir(directory, { withFileTypes: true });
     const names = new Set(entries.filter(entry => entry.isFile()).map(entry => entry.name));
-    if (REQUIRED_FILES.some(name => names.has(name)) || names.has('package-config.json')) {
+    const config = names.has('package-config.json')
+      ? JSON.parse(await fs.readFile(path.join(directory, 'package-config.json'), 'utf8')) : {};
+    if (!config.jsonAbi && (REQUIRED_FILES.some(name => names.has(name)) || names.has('package-config.json'))) {
       const missing = REQUIRED_FILES.filter(name => !names.has(name));
       if (missing.length) throw new Error(`Incomplete methodology: ${directory}; missing ${missing.join(', ')}`);
       const definition = JSON.parse(await fs.readFile(path.join(directory, 'definition.json'), 'utf8'));
@@ -22,8 +25,6 @@ async function discoverPackages(root) {
       const identity = `${id}/v${version}`;
       if (identities.has(identity)) throw new Error(`Duplicate methodology identity: ${identity}`);
       identities.add(identity);
-      const config = names.has('package-config.json')
-        ? JSON.parse(await fs.readFile(path.join(directory, 'package-config.json'), 'utf8')) : {};
       const declared = definition.evidenceValidation?.kind === 'DECLARED_INPUTS_V1';
       const policyFile = config.policyFile || 'device-policy.json';
       if (typeof policyFile !== 'string' || path.isAbsolute(policyFile)) throw new Error(`Policy path must be relative: ${directory}`);
@@ -42,16 +43,31 @@ async function discoverPackages(root) {
   return packages;
 }
 
-async function verifyAll(root = path.resolve(__dirname, '..')) {
+async function verifyAll(root = path.resolve(__dirname, '..'), dependencies = {}) {
   const packages = await discoverPackages(root);
+  const identities = new Set(packages.map(item => item.identity));
   for (const item of packages) {
     console.info(`[INFO] Verifying methodology | source=${path.relative(root, item.source)} | methodology=${item.identity}`);
     const { out } = await buildDirectory(item.source, item.policy,
       path.join(root, 'dist', path.relative(path.join(root, 'methodologies'), item.source)));
     await verifyDirectory(out);
   }
-  console.info(`[INFO] All methodology packages verified | count=${packages.length}`);
-  return packages.length;
+  const jsonSources = await discoverJsonPackages(root);
+  for (const source of jsonSources) {
+    const definition = JSON.parse(await fs.readFile(path.join(source, 'definition.json'), 'utf8'));
+    const identity = `${definition.methodology.id}/v${definition.methodology.version}`;
+    if (identities.has(identity)) throw new Error(`Duplicate methodology identity across ABI versions: ${identity}`);
+    identities.add(identity);
+  }
+  const jsonResults = jsonSources.length
+    ? await (dependencies.buildJsonPackages || buildJsonPackages)(root)
+    : [];
+  if (jsonResults.length !== jsonSources.length) {
+    throw new Error(`JSON WASM verification count mismatch: discovered=${jsonSources.length}, verified=${jsonResults.length}`);
+  }
+  const count = packages.length + jsonResults.length;
+  console.info(`[INFO] All methodology packages verified | count=${count}`);
+  return count;
 }
 if (require.main === module) verifyAll().catch(error => { console.error(`[ERROR] ${error.message}`); process.exitCode = 1; });
 module.exports = { discoverPackages, verifyAll };

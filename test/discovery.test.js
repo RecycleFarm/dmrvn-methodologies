@@ -6,6 +6,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { discoverPackages, verifyAll } = require('../scripts/verify-all');
+const { discoverPackages: discoverJsonPackages } = require('../scripts/json-abi-package');
 const { updateCatalog } = require('../scripts/update-build-catalog');
 
 async function fixture(t) {
@@ -29,6 +30,58 @@ test('discovers and verifies every version and category without a hardcoded list
   assert.equal((await discoverPackages(root)).length, 3);
   assert.equal(await verifyAll(root), 3);
   assert.equal(JSON.parse(await fs.readFile(path.join(root, 'dist/new-category/3001-v1/manifest.json'), 'utf8')).methodology.id, 3001);
+});
+test('verify-all also builds and verifies discovered JSON ABI packages', async t => {
+  const { root, add } = await fixture(t);
+  await add('pet', 2003, 1);
+  const jsonDir = path.join(root, 'methodologies', 'solar', '2004-v2');
+  await fs.mkdir(jsonDir, { recursive: true });
+  await fs.writeFile(path.join(jsonDir, 'package-config.json'), JSON.stringify({
+    jsonAbi: { runtime: 'JSON_WASM_V2', crateDirectory: 'wasm' },
+  }));
+  await fs.writeFile(path.join(jsonDir, 'definition.json'), JSON.stringify({
+    methodology: { id: 2004, version: 2 }, activityId: 1004, runtime: { kind: 'JSON_WASM_V2' },
+  }));
+  await fs.writeFile(path.join(jsonDir, 'vectors.json'), '[]');
+  await fs.mkdir(path.join(jsonDir, 'wasm'));
+  await fs.writeFile(path.join(jsonDir, 'wasm/Cargo.toml'), '[package]\nname = "solar-test"\nversion = "0.1.0"\n');
+  let jsonBuildRoot;
+  const count = await verifyAll(root, {
+    buildJsonPackages: async buildRoot => { jsonBuildRoot = buildRoot; return [{}]; },
+  });
+  assert.equal(jsonBuildRoot, root);
+  assert.equal(count, 2);
+});
+test('discovers a new JSON ABI methodology by package metadata without a method allowlist', async t => {
+  const { root } = await fixture(t);
+  const dir = path.join(root, 'methodologies', 'tidal', '9001-v1');
+  await fs.mkdir(path.join(dir, 'wasm'), { recursive: true });
+  await fs.writeFile(path.join(dir, 'package-config.json'), JSON.stringify({
+    jsonAbi: { runtime: 'JSON_WASM_V2', crateDirectory: 'wasm' },
+  }));
+  await fs.writeFile(path.join(dir, 'definition.json'), JSON.stringify({
+    methodology: { id: 9001, version: 1 }, activityId: 9001, runtime: { kind: 'JSON_WASM_V2' },
+  }));
+  await fs.writeFile(path.join(dir, 'vectors.json'), '[]');
+  await fs.writeFile(path.join(dir, 'wasm/Cargo.toml'), '[package]\nname = "tidal-test"\nversion = "0.1.0"\n');
+
+  assert.deepEqual(await discoverJsonPackages(root), [dir]);
+});
+test('rejects a methodology identity duplicated across legacy and JSON ABIs', async t => {
+  const { root, add } = await fixture(t);
+  await add('tumbler', 2001, 3);
+  const dir = path.join(root, 'methodologies', 'json', '2001-v3');
+  await fs.mkdir(path.join(dir, 'wasm'), { recursive: true });
+  await fs.writeFile(path.join(dir, 'package-config.json'), JSON.stringify({
+    jsonAbi: { runtime: 'JSON_WASM_V2', crateDirectory: 'wasm' },
+  }));
+  await fs.writeFile(path.join(dir, 'definition.json'), JSON.stringify({
+    methodology: { id: 2001, version: 3 }, activityId: 1003, runtime: { kind: 'JSON_WASM_V2' },
+  }));
+  await fs.writeFile(path.join(dir, 'vectors.json'), '[]');
+  await fs.writeFile(path.join(dir, 'wasm/Cargo.toml'), '[package]\nname = "duplicate-test"\nversion = "0.1.0"\n');
+
+  await assert.rejects(verifyAll(root), /Duplicate methodology identity across ABI versions/);
 });
 test('fails instead of silently skipping an incomplete methodology', async t => {
   const { root, add } = await fixture(t); const dir = await add('tumbler', 2001, 3);

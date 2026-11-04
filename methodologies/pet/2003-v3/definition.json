@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 2,
+  "activityId": 1003,
+  "methodology": { "id": 2003, "version": 3 },
+  "evidenceSchema": "DMRVN_EVIDENCE_V4",
+  "evidenceValidation": { "kind": "METHODOLOGY_JSON_SCHEMA_V1", "version": 1 },
+  "coefficientNotice": "Integration test only: 20 gCO2e per partner-declared PET bottle. Does not prove disposal, recycling or certified carbon reduction.",
+  "inputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["petBottleCount"],
+    "properties": {
+      "petBottleCount": { "type": "integer", "minimum": 1, "maximum": 100000 }
+    }
+  },
+  "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["estimated_co2e"],
+    "properties": {
+      "estimated_co2e": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["value", "unit", "scale"],
+        "properties": {
+          "value": { "type": "string", "pattern": "^[0-9]+$" },
+          "unit": { "const": "gCO2e" },
+          "scale": { "const": 0 }
+        }
+      }
+    }
+  },
+  "runtime": { "kind": "JSON_WASM_V2", "abiVersion": 2, "export": "compute" }
+}

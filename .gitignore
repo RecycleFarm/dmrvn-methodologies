@@ -1,5 +1,7 @@
 node_modules/
 dist/
+.cargo-home/
+**/target/
 .env*
 *private-key*
 serviceAccount*.json
