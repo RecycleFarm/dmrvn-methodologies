@@ -67,15 +67,30 @@ function runWasm(wasmBytes, inputBytes, timeoutMs = 1000) {
   }).finally(() => worker.terminate());
 }
 
-async function verifyPackage({ manifest, wasmBytes, vectors }) {
+async function verifyPackage({ manifest, wasmBytes, vectors, devicePolicy = null }) {
   if (!Buffer.isBuffer(wasmBytes) || wasmBytes.length === 0 || wasmBytes.length > MAX_WASM_BYTES
     || !WebAssembly.validate(wasmBytes)) throw new Error('Invalid or oversized JSON WASM package');
   assertBoundedWasmMemory(wasmBytes);
   if (hashBytes(wasmBytes).toLowerCase() !== String(manifest.wasmHash).toLowerCase()) throw new Error('WASM hash mismatch');
-  if (manifest.schemaVersion !== 2 || manifest.evidenceSchema !== 'DMRVN_EVIDENCE_V4'
-    || manifest.evidenceValidation?.kind !== 'METHODOLOGY_JSON_SCHEMA_V1' || manifest.evidenceValidation.version !== 1
+  const tumblerPolicy = manifest.evidenceValidation?.kind === 'TUMBLER_SIGNED_PAIRS_V1'
+    && manifest.evidenceValidation.version === 1 && manifest.activityId === 1001
+    && manifest.methodology?.id === 2001 && manifest.methodology.version >= 4
+    && manifest.evidenceSchema === 'DEVICE_ATTESTED_TUMBLER_BATCH_V1'
+    && manifest.aggregation === 'SUM_VERIFIED_WATER_BEFORE_WASM'
+    && typeof manifest.devicePolicyHash === 'string' && devicePolicy;
+  const declaredInput = manifest.evidenceSchema === 'DMRVN_EVIDENCE_V4'
+    && manifest.evidenceValidation?.kind === 'METHODOLOGY_JSON_SCHEMA_V1'
+    && manifest.evidenceValidation.version === 1 && !manifest.devicePolicyHash && !devicePolicy;
+  if (manifest.schemaVersion !== 2 || (!tumblerPolicy && !declaredInput)
     || manifest.runtime?.kind !== 'JSON_WASM_V2' || manifest.runtime.abiVersion !== 2
-    || manifest.runtime.export !== 'compute' || manifest.devicePolicyHash) throw new Error('Invalid JSON WASM v2 manifest');
+    || manifest.runtime.export !== 'compute') throw new Error('Invalid JSON WASM v2 manifest');
+  if (tumblerPolicy && hashJson(devicePolicy).toLowerCase() !== manifest.devicePolicyHash.toLowerCase()) {
+    throw new Error('Device policy hash mismatch');
+  }
+  if (tumblerPolicy && (devicePolicy.kind !== 'TUMBLER_SIGNED_PAIRS_V1'
+    || !Array.isArray(devicePolicy.trustedCertificates) || devicePolicy.trustedCertificates.length === 0)) {
+    throw new Error('Approved tumbler device policy is required');
+  }
   const validateInput = validator(manifest.inputSchema);
   const validateOutput = validator(manifest.outputSchema);
   const module = await WebAssembly.compile(wasmBytes);
@@ -127,7 +142,16 @@ async function readPackageDefinition(sourceDir) {
   if (![id, version, definition.activityId].every(value => Number.isSafeInteger(value) && value > 0)) {
     throw new Error(`Invalid JSON WASM methodology identity: ${sourceDir}`);
   }
-  return { definition, vectors, crate, crateDirectory, config };
+  let devicePolicy = null;
+  if (config.jsonAbi.policyFile) {
+    const policyPath = path.resolve(sourceDir, config.jsonAbi.policyFile);
+    const relativePolicyPath = path.relative(sourceDir, policyPath);
+    if (!relativePolicyPath || relativePolicyPath.startsWith(`..${path.sep}`) || relativePolicyPath === '..') {
+      throw new Error(`Device policy must resolve inside its methodology package: ${sourceDir}`);
+    }
+    devicePolicy = JSON.parse(await fs.readFile(policyPath, 'utf8'));
+  }
+  return { definition, vectors, crate, crateDirectory, config, devicePolicy };
 }
 
 function findCdylibTarget(cargo, manifestPath, env) {
@@ -142,7 +166,7 @@ function findCdylibTarget(cargo, manifestPath, env) {
 }
 
 async function buildPackage(sourceDir, root, options = {}) {
-  const { definition, vectors, crate, crateDirectory, config } = await readPackageDefinition(sourceDir);
+  const { definition, vectors, crate, crateDirectory, config, devicePolicy } = await readPackageDefinition(sourceDir);
   const packageRelative = path.relative(path.join(root, 'methodologies'), sourceDir);
   const targetBase = process.env.DMRVN_WASM_TARGET_DIR
     ? path.resolve(root, process.env.DMRVN_WASM_TARGET_DIR) : path.join(crateDirectory, 'target');
@@ -174,13 +198,14 @@ async function buildPackage(sourceDir, root, options = {}) {
   const target = path.join(targetDirectory, 'wasm32-unknown-unknown', 'release', `${targetName}.wasm`);
   const wasmBytes = await fs.readFile(target);
   assertNoBuildPaths(wasmBytes, { root, cargoHome, targetDirectory });
-  const manifest = { ...definition, wasmHash: hashBytes(wasmBytes) };
-  const verification = await verifyPackage({ manifest, wasmBytes, vectors });
+  const manifest = { ...definition, ...(devicePolicy ? { devicePolicyHash: hashJson(devicePolicy) } : {}), wasmHash: hashBytes(wasmBytes) };
+  const verification = await verifyPackage({ manifest, wasmBytes, vectors, devicePolicy });
   const outDir = path.join(root, 'dist', packageRelative);
   await fs.mkdir(outDir, { recursive: true });
   await Promise.all([
     fs.writeFile(path.join(outDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`),
     fs.writeFile(path.join(outDir, 'methodology.wasm'), wasmBytes),
+    ...(devicePolicy ? [fs.writeFile(path.join(outDir, 'device-policy.json'), `${JSON.stringify(devicePolicy, null, 2)}\n`)] : []),
     fs.writeFile(path.join(outDir, 'vectors.json'), `${JSON.stringify(vectors, null, 2)}\n`),
     fs.writeFile(path.join(outDir, 'build-info.json'), `${JSON.stringify({ compiler: 'rustc', compilerVersion: rustcVersion,
       cargoVersion, toolchain: toolchain.channel, target: 'wasm32-unknown-unknown', crateDirectory: config.jsonAbi.crateDirectory,
@@ -263,8 +288,10 @@ async function verifyBuiltPackage(sourceDir, root) {
     fs.readFile(path.join(outDir, 'methodology.wasm')),
     fs.readFile(path.join(outDir, 'vectors.json'), 'utf8').then(JSON.parse),
   ]);
-  const verification = await verifyPackage({ manifest, wasmBytes, vectors });
-  return { outDir, manifest, wasmBytes, verification };
+  const devicePolicy = manifest.devicePolicyHash
+    ? await fs.readFile(path.join(outDir, 'device-policy.json'), 'utf8').then(JSON.parse) : null;
+  const verification = await verifyPackage({ manifest, wasmBytes, vectors, devicePolicy });
+  return { outDir, manifest, wasmBytes, devicePolicy, verification };
 }
 
 async function verifyAllBuilt(root = path.resolve(__dirname, '..')) {

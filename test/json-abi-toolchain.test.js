@@ -7,7 +7,8 @@ const path = require('node:path');
 const os = require('node:os');
 const { spawnSync } = require('node:child_process');
 const { resolveBuildToolchain } = require('../scripts/rust-toolchain');
-const { assertPinnedVersion, encodedRustFlags, assertNoBuildPaths } = require('../scripts/json-abi-package');
+const { assertPinnedVersion, encodedRustFlags, assertNoBuildPaths, verifyPackage, verifyBuiltPackage,
+  readPackageDefinition } = require('../scripts/json-abi-package');
 
 test('JSON WASM build resolves the repository-pinned Rust toolchain without PATH rustc', async () => {
   const crateDirectory = path.join(__dirname, '../wasm/json-abi');
@@ -52,6 +53,22 @@ test('JSON WASM build rejects artifacts that embed local build paths', () => {
   assert.doesNotThrow(() => assertNoBuildPaths(Buffer.from('wasm:/cargo/registry/src'), paths));
   assert.throws(() => assertNoBuildPaths(Buffer.from('wasm:/Users/test/repo/.cargo-home/registry/src'), paths),
     /WASM contains local build paths/);
+});
+
+test('tumbler v4 binds its signed-device policy while using the shared JSON WASM ABI', async () => {
+  const root = path.join(__dirname, '..');
+  const source = path.join(root, 'methodologies/tumbler/2001-v4');
+  const definition = await readPackageDefinition(source);
+  assert.equal(definition.definition.runtime.kind, 'JSON_WASM_V2');
+  assert.equal(definition.definition.evidenceValidation.kind, 'TUMBLER_SIGNED_PAIRS_V1');
+  assert.equal(definition.devicePolicy.kind, 'TUMBLER_SIGNED_PAIRS_V1');
+
+  const built = await verifyBuiltPackage(source, root);
+  assert.equal(built.verification.vectors, 6);
+  assert.ok(built.manifest.devicePolicyHash);
+  await assert.rejects(verifyPackage({ manifest: built.manifest, wasmBytes: built.wasmBytes,
+    vectors: JSON.parse(await fs.readFile(path.join(built.outDir, 'vectors.json'), 'utf8')),
+    devicePolicy: { ...built.devicePolicy, models: {} } }), /Device policy hash mismatch/);
 });
 
 test('toolchain setup does not invoke rustup when the pinned toolchain is ready', () => {

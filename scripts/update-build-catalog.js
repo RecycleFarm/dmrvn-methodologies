@@ -36,7 +36,7 @@ async function updateCatalog(root, metadata) {
     const build = JSON.parse(await fs.readFile(path.join(dist, 'build-info.json'), 'utf8'));
     const target = path.join(root, 'builds', relative);
     await fs.mkdir(target, { recursive: true });
-    for (const name of ['manifest.json', 'methodology.wasm', 'vectors.json', 'build-info.json']) {
+    for (const name of ['manifest.json', 'methodology.wasm', ...(manifest.devicePolicyHash ? ['device-policy.json'] : []), 'vectors.json', 'build-info.json']) {
       await fs.copyFile(path.join(dist, name), path.join(target, name));
     }
     catalog.push({ methodology: manifest.methodology, activityId: manifest.activityId,
@@ -45,7 +45,7 @@ async function updateCatalog(root, metadata) {
       wasmHash: manifest.wasmHash, methodologyHash: build.methodologyHash,
       compiler: `${build.compiler} ${build.compilerVersion}`, vectors: build.vectors,
       inputSchema: manifest.inputSchema, outputSchema: manifest.outputSchema, runtime: manifest.runtime,
-      evidenceValidation: manifest.evidenceValidation, hasDevicePolicy: false });
+      evidenceValidation: manifest.evidenceValidation, hasDevicePolicy: Boolean(manifest.devicePolicyHash) });
   }
   const record = { ...metadata, packages: catalog };
   await fs.writeFile(path.join(root, 'builds/catalog.json'), `${JSON.stringify(record, null, 2)}\n`);

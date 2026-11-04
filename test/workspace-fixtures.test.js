@@ -23,6 +23,13 @@ const packages = [
       'recyclefarm-attestor-desktop/tests/fixtures/json-methodologies/solar-2004-v2',
     ],
   },
+  {
+    source: 'tumbler/2001-v4', identity: { id: 2001, version: 4 },
+    targets: [
+      'recyclefarm-serverless/functions/tests/fixtures/dmrvn-json-abi/tumbler/2001-v4',
+      'recyclefarm-attestor-desktop/tests/fixtures/json-methodologies/tumbler-2001-v4',
+    ],
+  },
 ];
 
 test('syncs exact verified package bytes to serverless and Attestor fixtures and detects later drift', async t => {
@@ -38,10 +45,12 @@ test('syncs exact verified package bytes to serverless and Attestor fixtures and
     const manifest = {
       methodology: item.identity,
       wasmHash: utils.keccak256(wasm),
+      ...(item.identity.id === 2001 ? { devicePolicyHash: '0xpolicy' } : {}),
     };
     await fs.writeFile(path.join(sourceDirectory, 'manifest.json'), JSON.stringify(manifest));
     await fs.writeFile(path.join(sourceDirectory, 'methodology.wasm'), wasm);
     await fs.writeFile(path.join(sourceDirectory, 'vectors.json'), '[]');
+    if (item.identity.id === 2001) await fs.writeFile(path.join(sourceDirectory, 'device-policy.json'), '{"kind":"test-policy"}');
   }
 
   await syncWorkspaceFixtures({ repositoryRoot, workspaceRoot });
@@ -53,4 +62,6 @@ test('syncs exact verified package bytes to serverless and Attestor fixtures and
     syncWorkspaceFixtures({ repositoryRoot, workspaceRoot, check: true }),
     /Fixture drift/,
   );
+  const syncedPolicy = path.join(workspaceRoot, packages[2].targets[0], 'device-policy.json');
+  assert.equal(await fs.readFile(syncedPolicy, 'utf8'), '{"kind":"test-policy"}');
 });

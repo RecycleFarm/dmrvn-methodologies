@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "activityId": 1001,
+  "methodology": { "id": 2001, "version": 4 },
+  "evidenceSchema": "DEVICE_ATTESTED_TUMBLER_BATCH_V1",
+  "evidenceValidation": { "kind": "TUMBLER_SIGNED_PAIRS_V1", "version": 1 },
+  "coefficientNotice": "Integration test only: 20 gCO2e per 500 mL PET bottle equivalent. Not a certified carbon-credit factor.",
+  "aggregation": "SUM_VERIFIED_WATER_BEFORE_WASM",
+  "inputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["waterIntakeMl"],
+    "properties": { "waterIntakeMl": { "type": "integer", "minimum": 1, "maximum": 1000000 } }
+  },
+  "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["avoided_pet_co2e"],
+    "properties": {
+      "avoided_pet_co2e": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["value", "unit", "scale"],
+        "properties": {
+          "value": { "type": "string", "pattern": "^[0-9]+$" },
+          "unit": { "const": "gCO2e" },
+          "scale": { "const": 0 }
+        }
+      }
+    }
+  },
+  "runtime": { "kind": "JSON_WASM_V2", "abiVersion": 2, "export": "compute" }
+}

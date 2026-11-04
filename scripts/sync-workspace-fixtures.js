@@ -21,9 +21,17 @@ const packages = [
       'recyclefarm-attestor-desktop/tests/fixtures/json-methodologies/solar-2004-v2',
     ],
   },
+  {
+    identity: { id: 2001, version: 4 },
+    source: 'tumbler/2001-v4',
+    targets: [
+      'recyclefarm-serverless/functions/tests/fixtures/dmrvn-json-abi/tumbler/2001-v4',
+      'recyclefarm-attestor-desktop/tests/fixtures/json-methodologies/tumbler-2001-v4',
+    ],
+  },
 ];
 
-const packageFiles = ['manifest.json', 'methodology.wasm', 'vectors.json'];
+const packageFiles = ['manifest.json', 'methodology.wasm', 'vectors.json', 'device-policy.json'];
 
 async function syncWorkspaceFixtures({ repositoryRoot, workspaceRoot, check = false }) {
   const root = path.resolve(repositoryRoot);
@@ -44,7 +52,8 @@ async function syncWorkspaceFixtures({ repositoryRoot, workspaceRoot, check = fa
 
     for (const relativeTarget of item.targets) {
       const targetDirectory = path.join(workspace, relativeTarget);
-      for (const file of packageFiles) {
+      const files = manifest.devicePolicyHash ? packageFiles : packageFiles.filter(file => file !== 'device-policy.json');
+      for (const file of files) {
         const sourcePath = path.join(sourceDirectory, file);
         const targetPath = path.join(targetDirectory, file);
         const sourceBytes = await fs.readFile(sourcePath);

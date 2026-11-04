@@ -1,0 +1,8 @@
+[
+  { "inputs": { "waterIntakeMl": 1 }, "expectedOutputs": { "avoided_pet_co2e": { "value": "0", "unit": "gCO2e", "scale": 0 } } },
+  { "inputs": { "waterIntakeMl": 499 }, "expectedOutputs": { "avoided_pet_co2e": { "value": "0", "unit": "gCO2e", "scale": 0 } } },
+  { "inputs": { "waterIntakeMl": 500 }, "expectedOutputs": { "avoided_pet_co2e": { "value": "20", "unit": "gCO2e", "scale": 0 } } },
+  { "inputs": { "waterIntakeMl": 850 }, "expectedOutputs": { "avoided_pet_co2e": { "value": "20", "unit": "gCO2e", "scale": 0 } } },
+  { "inputs": { "waterIntakeMl": 1000 }, "expectedOutputs": { "avoided_pet_co2e": { "value": "40", "unit": "gCO2e", "scale": 0 } } },
+  { "inputs": { "waterIntakeMl": 1000000 }, "expectedOutputs": { "avoided_pet_co2e": { "value": "40000", "unit": "gCO2e", "scale": 0 } } }
+]
