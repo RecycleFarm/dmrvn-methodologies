@@ -1,0 +1,12 @@
+{
+  "compiler": "rustc",
+  "compilerVersion": "rustc 1.85.1 (4eb161250 2025-03-15)",
+  "cargoVersion": "cargo 1.85.1 (d73d2caf9 2024-12-31)",
+  "toolchain": "1.85.1",
+  "target": "wasm32-unknown-unknown",
+  "crateDirectory": "wasm",
+  "abiVersion": 2,
+  "methodologyHash": "0xf806b0452928a00488164a924a4a0dcaaae25e54ee5e78fb8b1efd4a7c07125f",
+  "wasmHash": "0xc74c5ed3dacd4fbed52fbc7e498e5fab710c88fad4161f19417b80c0cd306668",
+  "vectors": 6
+}

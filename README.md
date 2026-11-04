@@ -31,17 +31,17 @@ GitHub 빌드 성공은 Registry 승인이나 운영 기본 버전 변경을 뜻
 ## 검증된 빌드
 
 <!-- builds:start -->
-검증 시각: 2026-11-04T00:53:15.280Z (UTC)
-소스 커밋: `a7496c474b59e2f180da0248c5f94142d1817c92` · Node v22.23.4
-[GitHub Actions 실행 기록](https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/41749995588)
+검증 시각: 2026-11-04T07:07:41.706Z (UTC)
+소스 커밋: `177377169fb99b8af11924c60377cdc294d4c9b4` · Node v22.22.3
 [기계 판독용 catalog.json](builds/catalog.json)
 
 | 방법론 | 활동 | WASM | manifest | 정책 | 빌드 정보 |
 |---|---|---|---|---|---|
 | 2003/v1 | 1003 | [44 bytes](builds/pet/2003-v1/methodology.wasm) | [JSON](builds/pet/2003-v1/manifest.json) | Not required (declared inputs) | [wabt 1.0.37, 3 vectors](builds/pet/2003-v1/build-info.json) |
 | 2001/v3 | 1001 | [48 bytes](builds/tumbler/2001-v3/methodology.wasm) | [JSON](builds/tumbler/2001-v3/manifest.json) | [JSON](builds/tumbler/2001-v3/device-policy.json) | [wabt 1.0.37, 6 vectors](builds/tumbler/2001-v3/build-info.json) |
-| 2003/v3 | 1003 | [89544 bytes](builds/pet/2003-v3/methodology.wasm) | [JSON](builds/pet/2003-v3/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/pet/2003-v3/build-info.json) |
-| 2004/v2 | 1004 | [108215 bytes](builds/solar/2004-v2/methodology.wasm) | [JSON](builds/solar/2004-v2/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/solar/2004-v2/build-info.json) |
+| 2003/v3 | 1003 | [89567 bytes](builds/pet/2003-v3/methodology.wasm) | [JSON](builds/pet/2003-v3/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/pet/2003-v3/build-info.json) |
+| 2004/v2 | 1004 | [108213 bytes](builds/solar/2004-v2/methodology.wasm) | [JSON](builds/solar/2004-v2/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/solar/2004-v2/build-info.json) |
+| 2001/v4 | 1001 | [89574 bytes](builds/tumbler/2001-v4/methodology.wasm) | [JSON](builds/tumbler/2001-v4/manifest.json) | [JSON](builds/tumbler/2001-v4/device-policy.json) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 6 vectors](builds/tumbler/2001-v4/build-info.json) |
 
 ### 2003/v1
 
@@ -55,13 +55,18 @@ GitHub 빌드 성공은 Registry 승인이나 운영 기본 버전 변경을 뜻
 
 ### 2003/v3
 
-- wasmHash: `0x8d7b604b5b02a30d6dda9927ec9657bb28fbccf15850958d6cdb20f3dd696b53`
-- methodologyHash: `0x4aff2b393d0d4d9fd4e4144845a4ad4058ad693115ce8643310ae81144578370`
+- wasmHash: `0xfd484faf619e37f5b790ef70a68d3da343fb43e984594951947a0bad2100703f`
+- methodologyHash: `0x5765869e964ce2cbe1c2f71e2b6d1860e086c2962e814b965c7d92094cf5d138`
 
 ### 2004/v2
 
-- wasmHash: `0x6c501cf75708c5116a51f7e064c62b7d7a2d08f95e2e22742211ba992b9450a8`
-- methodologyHash: `0xae7b574f9f78c830ebbe407b51ad1b384b94ab10173dc651decdb5121792307c`
+- wasmHash: `0x3d7ffea52cf385c08a77e24020d08af25562f6cc17766ced62144c7bec89e0de`
+- methodologyHash: `0xf57bb8d8dfbba65c19ce66dce69de204dc8974fe72ec8f2e141f04e447b9020f`
+
+### 2001/v4
+
+- wasmHash: `0xc74c5ed3dacd4fbed52fbc7e498e5fab710c88fad4161f19417b80c0cd306668`
+- methodologyHash: `0xf806b0452928a00488164a924a4a0dcaaae25e54ee5e78fb8b1efd4a7c07125f`
 <!-- builds:end -->
 
 ## 수정·검증
@@ -76,7 +81,7 @@ npm run verify:all
 npm run verify:reproducible
 ```
 
-`ai-workspace`에서 PET·태양광을 서버리스/Attestor와 함께 검증할 때는 패키지를 다시 빌드한 뒤 `npm run sync:workspace-fixtures`를 실행합니다. 이 명령은 검증된 `manifest.json`, `methodology.wasm`, `vectors.json`을 두 저장소의 테스트 fixture에 그대로 복사하며 배포·Registry 등록은 하지 않습니다. CI나 리뷰 전에는 `npm run verify:workspace-fixtures`로 복사본의 바이트·버전 일치를 확인합니다. downstream 테스트는 방법론 버전과 WASM hash도 고정하므로 서로 다른 바이너리를 쓰면 실패합니다. 새 방법론 버전을 추가하면 이 동기화 목록과 해당 모듈의 fixture 기대값을 함께 갱신합니다.
+`ai-workspace`에서 PET·태양광·텀블러를 서버리스/Attestor와 함께 검증할 때는 패키지를 다시 빌드한 뒤 `npm run sync:workspace-fixtures`를 실행합니다. 이 명령은 검증된 `manifest.json`, `methodology.wasm`, `vectors.json`을 복사하고, 기기 서명 정책이 있는 텀블러 패키지는 `device-policy.json`도 함께 복사합니다. 배포·Registry 등록은 하지 않습니다. CI나 리뷰 전에는 `npm run verify:workspace-fixtures`로 복사본의 바이트·버전 일치를 확인합니다. downstream 테스트는 방법론 버전과 WASM hash도 고정하므로 서로 다른 바이너리를 쓰면 실패합니다. 새 방법론 버전을 추가하면 이 동기화 목록과 해당 모듈의 fixture 기대값을 함께 갱신합니다.
 
 JSON ABI용 Rust 버전은 `rust-toolchain.toml`이 단일 기준입니다. `npm run setup:wasm`은 npm 패키지 설치 전에도 실행할 수 있으며, 해당 Rust 버전과 WASM 타깃만 준비합니다. 빌드는 PATH의 임의 Cargo 대신 pin된 Cargo/Rustc를 선택하며 lockfile을 강제합니다. 툴체인이나 WASM 타깃이 없거나 버전이 다르면 필요한 조치를 오류로 표시합니다. Cargo 의존성 캐시와 빌드 산출물은 기본적으로 저장소의 무시되는 경로에 둡니다. `CARGO_HOME`과 target 경로는 Rust 출력에서 고정 경로로 remap하며, 빌드기가 로컬 경로 누출을 검사합니다. 따라서 셸별 캐시·target 위치가 WASM bytes나 `wasmHash`에 영향을 주지 않아야 합니다. 의도적인 캐시 경로 변경은 `DMRVN_CARGO_HOME`, 격리 빌드 디렉터리는 `DMRVN_WASM_TARGET_DIR`로 지정할 수 있습니다.
 
