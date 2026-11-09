@@ -25,8 +25,8 @@ jobs:
         run: |
           npm run setup:wasm
       - run: npm ci --ignore-scripts
-      - run: npm test
       - run: npm run verify:all
+      - run: npm test
       - run: npm run verify:reproducible
 
   publish:
