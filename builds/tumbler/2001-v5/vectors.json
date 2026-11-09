@@ -1,0 +1,98 @@
+[
+  {
+    "inputs": {
+      "waterIntakeMl": 9
+    },
+    "expectedOutputs": {
+      "avoided_pet_co2e": {
+        "value": "0",
+        "unit": "gCO2e",
+        "scale": 0
+      }
+    }
+  },
+  {
+    "inputs": {
+      "waterIntakeMl": 10
+    },
+    "expectedOutputs": {
+      "avoided_pet_co2e": {
+        "value": "1",
+        "unit": "gCO2e",
+        "scale": 0
+      }
+    }
+  },
+  {
+    "inputs": {
+      "waterIntakeMl": 11
+    },
+    "expectedOutputs": {
+      "avoided_pet_co2e": {
+        "value": "1",
+        "unit": "gCO2e",
+        "scale": 0
+      }
+    }
+  },
+  {
+    "inputs": {
+      "waterIntakeMl": 499
+    },
+    "expectedOutputs": {
+      "avoided_pet_co2e": {
+        "value": "49",
+        "unit": "gCO2e",
+        "scale": 0
+      }
+    }
+  },
+  {
+    "inputs": {
+      "waterIntakeMl": 500
+    },
+    "expectedOutputs": {
+      "avoided_pet_co2e": {
+        "value": "50",
+        "unit": "gCO2e",
+        "scale": 0
+      }
+    }
+  },
+  {
+    "inputs": {
+      "waterIntakeMl": 850
+    },
+    "expectedOutputs": {
+      "avoided_pet_co2e": {
+        "value": "85",
+        "unit": "gCO2e",
+        "scale": 0
+      }
+    }
+  },
+  {
+    "inputs": {
+      "waterIntakeMl": 1000
+    },
+    "expectedOutputs": {
+      "avoided_pet_co2e": {
+        "value": "100",
+        "unit": "gCO2e",
+        "scale": 0
+      }
+    }
+  },
+  {
+    "inputs": {
+      "waterIntakeMl": 1000000
+    },
+    "expectedOutputs": {
+      "avoided_pet_co2e": {
+        "value": "100000",
+        "unit": "gCO2e",
+        "scale": 0
+      }
+    }
+  }
+]

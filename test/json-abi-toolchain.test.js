@@ -71,6 +71,20 @@ test('tumbler v4 binds its signed-device policy while using the shared JSON WASM
     devicePolicy: { ...built.devicePolicy, models: {} } }), /Device policy hash mismatch/);
 });
 
+test('tumbler v5 uses the contract-aligned per-claim water conversion and preserves the signed-device policy', async () => {
+  const root = path.join(__dirname, '..');
+  const source = path.join(root, 'methodologies/tumbler/2001-v5');
+  const definition = await readPackageDefinition(source);
+  assert.equal(definition.definition.runtime.kind, 'JSON_WASM_V2');
+  assert.equal(definition.definition.methodology.version, 5);
+  assert.deepEqual(definition.devicePolicy, JSON.parse(await fs.readFile(
+    path.join(root, 'methodologies/tumbler/2001-v4/device-policy.json'), 'utf8')));
+
+  const built = await verifyBuiltPackage(source, root);
+  assert.equal(built.verification.vectors, 8);
+  assert.ok(built.manifest.devicePolicyHash);
+});
+
 test('toolchain setup does not invoke rustup when the pinned toolchain is ready', () => {
   const root = path.join(__dirname, '..');
   const missingRustup = path.join(os.tmpdir(), 'dmrvn-rustup-must-not-run');

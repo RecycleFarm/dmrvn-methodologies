@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 2,
+  "activityId": 1001,
+  "methodology": {
+    "id": 2001,
+    "version": 5
+  },
+  "evidenceSchema": "DEVICE_ATTESTED_TUMBLER_BATCH_V1",
+  "evidenceValidation": {
+    "kind": "TUMBLER_SIGNED_PAIRS_V1",
+    "version": 1
+  },
+  "coefficientNotice": "Integration test only: the DMRVN tumbler MRV contract conversion is applied per Claim. Not a certified carbon-credit factor.",
+  "aggregation": "SUM_VERIFIED_WATER_BEFORE_WASM",
+  "inputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "waterIntakeMl"
+    ],
+    "properties": {
+      "waterIntakeMl": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 1000000
+      }
+    }
+  },
+  "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "avoided_pet_co2e"
+    ],
+    "properties": {
+      "avoided_pet_co2e": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "value",
+          "unit",
+          "scale"
+        ],
+        "properties": {
+          "value": {
+            "type": "string",
+            "pattern": "^[0-9]+$"
+          },
+          "unit": {
+            "const": "gCO2e"
+          },
+          "scale": {
+            "const": 0
+          }
+        }
+      }
+    }
+  },
+  "runtime": {
+    "kind": "JSON_WASM_V2",
+    "abiVersion": 2,
+    "export": "compute"
+  },
+  "devicePolicyHash": "0x58f36bdb3cf46dd32e8f693fd4feb48a583a892049afec7111f32504a47d9799",
+  "wasmHash": "0xf3c202544e230b2e2870848e8aaaa936c65a7f3b4ccf6bf8ce3903927875472f"
+}

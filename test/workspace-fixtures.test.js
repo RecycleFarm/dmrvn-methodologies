@@ -30,6 +30,13 @@ const packages = [
       'recyclefarm-attestor-desktop/tests/fixtures/json-methodologies/tumbler-2001-v4',
     ],
   },
+  {
+    source: 'tumbler/2001-v5', identity: { id: 2001, version: 5 },
+    targets: [
+      'recyclefarm-serverless/functions/tests/fixtures/dmrvn-json-abi/tumbler/2001-v5',
+      'recyclefarm-attestor-desktop/tests/fixtures/json-methodologies/tumbler-2001-v5',
+    ],
+  },
 ];
 
 test('syncs exact verified package bytes to serverless and Attestor fixtures and detects later drift', async t => {

@@ -15,24 +15,26 @@ DMRVN 노드가 내려받아 실행할 방법론 소스와 검증된 WASM 패키
 | 방법론 | JSON 입력 예 | JSON 출력 예 | 의미 |
 |---|---|---|---|
 | PET 2003/v3 | `{"petBottleCount":3}` | `{"estimated_co2e":{"value":"60","unit":"gCO2e","scale":0}}` | 통합 시험용 계수이며 실제 재활용이나 공식 감축량 증명이 아님 |
-| 텀블러 2001/v4 | 서명 측정 합계의 `{"waterIntakeMl":850}` | `{"avoided_pet_co2e":{"value":"20","unit":"gCO2e","scale":0}}` | 기기 서명·정책 검증 뒤 JSON ABI v2로 실행하는 통합 시험 |
+| 텀블러 2001/v4 | 서명 측정 합계의 `{"waterIntakeMl":850}` | `{"avoided_pet_co2e":{"value":"20","unit":"gCO2e","scale":0}}` | 기존 승인본 보존. v4 계산식은 변경하지 않음 |
+| 텀블러 2001/v5 | 서명 측정 합계의 `{"waterIntakeMl":850}` | `{"avoided_pet_co2e":{"value":"85","unit":"gCO2e","scale":0}}` | Claim별 합산량에 MRV 컨트랙트 변환식을 적용하는 JSON ABI v2 시험 |
 | 태양광 2004/v2 | 측정 배열, 배출계수, 프로젝트 배출량 | 기준선·프로젝트 배출량·순감축량 객체와 측정 건수 | JSON 입출력 통합 시험용이며 승인된 탄소 방법론이 아님 |
 
 | 샘플 | 입력 | 검증 | 결과 |
 |---|---|---|---|
 | PET 1003 / 2003/v1 | `petBottleCount=3` (1..100000) | `DECLARED_INPUTS_V1`: 파트너 신고 입력 | `estimated_co2e=60 gCO2e` |
-| 텀블러 1001 / 2001/v4 | 서명 측정 합계 850 mL | 기기 서명·정책·예약 검증 + JSON ABI v2 | `avoided_pet_co2e=20 gCO2e` 객체 |
+| 텀블러 1001 / 2001/v4 | 서명 측정 합계 850 mL | 기기 서명·정책·예약 검증 + JSON ABI v2 | 기존 출력 `avoided_pet_co2e=20 gCO2e` |
+| 텀블러 1001 / 2001/v5 | 서명 측정 합계 850 mL | 기기 서명·정책·예약 검증 + JSON ABI v2 | Claim 단위 `floor(850 / 10) = 85`, `avoided_pet_co2e=85 gCO2e` |
 | 태양광 1004 / 2004/v2 | 발전량 측정 2건과 시험용 배출값 | JSON Schema 입력 검증 + JSON ABI v2 | 기준선 `450.1125`, 순감축량 `440.1125` tCO2e 시험 객체 |
 
-PET는 `count × 20`, 텀블러는 `floor(mL / 500) × 20`입니다. **20은 연동 시험용 계수입니다. PET 패키지는 실제 폐기·재활용이나 공식 감축량을 증명하지 않습니다. 텀블러 v3는 기존 ABI 패키지로 보존하고 v4부터 JSON ABI v2를 사용합니다.**
+PET는 시험용 `count × 20`입니다. 텀블러 v4는 기존 계산식을 보존하고, v5는 텀블러 MRV 컨트랙트와 같은 `carbonReducedG = floor(waterIntakeMl / 10)`을 Claim별 총량에 적용합니다. 컨트랙트가 여러 배치 합계에 한 번 내림하는 것과 달리 DMRVN은 Claim마다 계산합니다. 이 결과는 공식 탄소크레딧 인증을 뜻하지 않습니다. PET 패키지도 실제 폐기·재활용이나 공식 감축량을 증명하지 않습니다. 텀블러 v3 legacy ABI와 v4 JSON ABI는 각각 기존 Claim 실행을 위해 보존됩니다.
 
 GitHub 빌드 성공은 Registry 승인이나 운영 기본 버전 변경을 뜻하지 않습니다. 노드는 가장 높은 버전이 아니라 **Claim에 고정된 버전·hash**를 사용합니다.
 
 ## 검증된 빌드
 
 <!-- builds:start -->
-검증 시각: 2026-11-04T07:07:41.706Z (UTC)
-소스 커밋: `177377169fb99b8af11924c60377cdc294d4c9b4` · Node v22.22.3
+검증 시각: 2026-11-09T07:59:41.661Z (UTC)
+소스 커밋: `633d7fa8d1b3d909df3a0b4da3188e5aefed39b9` · Node v22.22.3
 [기계 판독용 catalog.json](builds/catalog.json)
 
 | 방법론 | 활동 | WASM | manifest | 정책 | 빌드 정보 |
@@ -42,6 +44,7 @@ GitHub 빌드 성공은 Registry 승인이나 운영 기본 버전 변경을 뜻
 | 2003/v3 | 1003 | [89567 bytes](builds/pet/2003-v3/methodology.wasm) | [JSON](builds/pet/2003-v3/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/pet/2003-v3/build-info.json) |
 | 2004/v2 | 1004 | [108213 bytes](builds/solar/2004-v2/methodology.wasm) | [JSON](builds/solar/2004-v2/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/solar/2004-v2/build-info.json) |
 | 2001/v4 | 1001 | [89574 bytes](builds/tumbler/2001-v4/methodology.wasm) | [JSON](builds/tumbler/2001-v4/manifest.json) | [JSON](builds/tumbler/2001-v4/device-policy.json) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 6 vectors](builds/tumbler/2001-v4/build-info.json) |
+| 2001/v5 | 1001 | [89563 bytes](builds/tumbler/2001-v5/methodology.wasm) | [JSON](builds/tumbler/2001-v5/manifest.json) | [JSON](builds/tumbler/2001-v5/device-policy.json) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 8 vectors](builds/tumbler/2001-v5/build-info.json) |
 
 ### 2003/v1
 
@@ -67,6 +70,11 @@ GitHub 빌드 성공은 Registry 승인이나 운영 기본 버전 변경을 뜻
 
 - wasmHash: `0xc74c5ed3dacd4fbed52fbc7e498e5fab710c88fad4161f19417b80c0cd306668`
 - methodologyHash: `0xf806b0452928a00488164a924a4a0dcaaae25e54ee5e78fb8b1efd4a7c07125f`
+
+### 2001/v5
+
+- wasmHash: `0xf3c202544e230b2e2870848e8aaaa936c65a7f3b4ccf6bf8ce3903927875472f`
+- methodologyHash: `0xb7df58228e3b9f353b6a04478aea5d617e81c0dbec4ca320517ab6e37ce1e432`
 <!-- builds:end -->
 
 ## 수정·검증
@@ -81,7 +89,7 @@ npm run verify:all
 npm run verify:reproducible
 ```
 
-`ai-workspace`에서 PET·태양광·텀블러를 서버리스/Attestor와 함께 검증할 때는 패키지를 다시 빌드한 뒤 `npm run sync:workspace-fixtures`를 실행합니다. 이 명령은 검증된 `manifest.json`, `methodology.wasm`, `vectors.json`을 복사하고, 기기 서명 정책이 있는 텀블러 패키지는 `device-policy.json`도 함께 복사합니다. 배포·Registry 등록은 하지 않습니다. CI나 리뷰 전에는 `npm run verify:workspace-fixtures`로 복사본의 바이트·버전 일치를 확인합니다. downstream 테스트는 방법론 버전과 WASM hash도 고정하므로 서로 다른 바이너리를 쓰면 실패합니다. 새 방법론 버전을 추가하면 이 동기화 목록과 해당 모듈의 fixture 기대값을 함께 갱신합니다.
+`ai-workspace`에서 PET·태양광·텀블러를 서버리스/Attestor와 함께 검증할 때는 패키지를 다시 빌드한 뒤 `npm run sync:workspace-fixtures`를 실행합니다. 이 명령은 검증된 `manifest.json`, `methodology.wasm`, `vectors.json`을 복사하고, 기기 서명 정책이 있는 텀블러 패키지는 `device-policy.json`도 함께 복사합니다. 배포·Registry 등록은 하지 않습니다. CI나 리뷰 전에는 `npm run verify:workspace-fixtures`로 복사본의 바이트·버전 일치를 확인합니다. downstream 테스트는 Claim에 고정된 방법론 버전과 WASM hash가 정확히 일치하는지 검증합니다.
 
 JSON ABI용 Rust 버전은 `rust-toolchain.toml`이 단일 기준입니다. `npm run setup:wasm`은 npm 패키지 설치 전에도 실행할 수 있으며, 해당 Rust 버전과 WASM 타깃만 준비합니다. 빌드는 PATH의 임의 Cargo 대신 pin된 Cargo/Rustc를 선택하며 lockfile을 강제합니다. 툴체인이나 WASM 타깃이 없거나 버전이 다르면 필요한 조치를 오류로 표시합니다. Cargo 의존성 캐시와 빌드 산출물은 기본적으로 저장소의 무시되는 경로에 둡니다. `CARGO_HOME`과 target 경로는 Rust 출력에서 고정 경로로 remap하며, 빌드기가 로컬 경로 누출을 검사합니다. 따라서 셸별 캐시·target 위치가 WASM bytes나 `wasmHash`에 영향을 주지 않아야 합니다. 의도적인 캐시 경로 변경은 `DMRVN_CARGO_HOME`, 격리 빌드 디렉터리는 `DMRVN_WASM_TARGET_DIR`로 지정할 수 있습니다.
 

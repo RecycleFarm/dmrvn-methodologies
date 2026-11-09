@@ -1,6 +1,6 @@
 {
-  "builtAt": "2026-11-04T07:07:41.706Z",
-  "sourceCommit": "177377169fb99b8af11924c60377cdc294d4c9b4",
+  "builtAt": "2026-11-09T07:59:41.661Z",
+  "sourceCommit": "633d7fa8d1b3d909df3a0b4da3188e5aefed39b9",
   "nodeVersion": "v22.22.3",
   "packages": [
     {
@@ -289,6 +289,75 @@
       "methodologyHash": "0xf806b0452928a00488164a924a4a0dcaaae25e54ee5e78fb8b1efd4a7c07125f",
       "compiler": "rustc rustc 1.85.1 (4eb161250 2025-03-15)",
       "vectors": 6,
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "waterIntakeMl"
+        ],
+        "properties": {
+          "waterIntakeMl": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          }
+        }
+      },
+      "outputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "avoided_pet_co2e"
+        ],
+        "properties": {
+          "avoided_pet_co2e": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "unit",
+              "scale"
+            ],
+            "properties": {
+              "value": {
+                "type": "string",
+                "pattern": "^[0-9]+$"
+              },
+              "unit": {
+                "const": "gCO2e"
+              },
+              "scale": {
+                "const": 0
+              }
+            }
+          }
+        }
+      },
+      "runtime": {
+        "kind": "JSON_WASM_V2",
+        "abiVersion": 2,
+        "export": "compute"
+      },
+      "evidenceValidation": {
+        "kind": "TUMBLER_SIGNED_PAIRS_V1",
+        "version": 1
+      },
+      "hasDevicePolicy": true
+    },
+    {
+      "methodology": {
+        "id": 2001,
+        "version": 5
+      },
+      "activityId": 1001,
+      "path": "builds/tumbler/2001-v5",
+      "wasmBytes": 89563,
+      "wasmHash": "0xf3c202544e230b2e2870848e8aaaa936c65a7f3b4ccf6bf8ce3903927875472f",
+      "methodologyHash": "0xb7df58228e3b9f353b6a04478aea5d617e81c0dbec4ca320517ab6e37ce1e432",
+      "compiler": "rustc rustc 1.85.1 (4eb161250 2025-03-15)",
+      "vectors": 8,
       "inputSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",

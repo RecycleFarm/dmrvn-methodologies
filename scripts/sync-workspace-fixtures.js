@@ -29,6 +29,14 @@ const packages = [
       'recyclefarm-attestor-desktop/tests/fixtures/json-methodologies/tumbler-2001-v4',
     ],
   },
+  {
+    identity: { id: 2001, version: 5 },
+    source: 'tumbler/2001-v5',
+    targets: [
+      'recyclefarm-serverless/functions/tests/fixtures/dmrvn-json-abi/tumbler/2001-v5',
+      'recyclefarm-attestor-desktop/tests/fixtures/json-methodologies/tumbler-2001-v5',
+    ],
+  },
 ];
 
 const packageFiles = ['manifest.json', 'methodology.wasm', 'vectors.json', 'device-policy.json'];

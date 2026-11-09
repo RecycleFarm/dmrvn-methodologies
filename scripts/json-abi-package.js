@@ -74,7 +74,7 @@ async function verifyPackage({ manifest, wasmBytes, vectors, devicePolicy = null
   if (hashBytes(wasmBytes).toLowerCase() !== String(manifest.wasmHash).toLowerCase()) throw new Error('WASM hash mismatch');
   const tumblerPolicy = manifest.evidenceValidation?.kind === 'TUMBLER_SIGNED_PAIRS_V1'
     && manifest.evidenceValidation.version === 1 && manifest.activityId === 1001
-    && manifest.methodology?.id === 2001 && manifest.methodology.version >= 4
+    && manifest.methodology?.id === 2001
     && manifest.evidenceSchema === 'DEVICE_ATTESTED_TUMBLER_BATCH_V1'
     && manifest.aggregation === 'SUM_VERIFIED_WATER_BEFORE_WASM'
     && typeof manifest.devicePolicyHash === 'string' && devicePolicy;
