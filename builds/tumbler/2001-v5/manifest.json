@@ -64,5 +64,5 @@
     "export": "compute"
   },
   "devicePolicyHash": "0x58f36bdb3cf46dd32e8f693fd4feb48a583a892049afec7111f32504a47d9799",
-  "wasmHash": "0xf3c202544e230b2e2870848e8aaaa936c65a7f3b4ccf6bf8ce3903927875472f"
+  "wasmHash": "0xabd7e7ddaabf74e06fb074280028c58bc5f9f034b832bd239ac5c381b05b4081"
 }

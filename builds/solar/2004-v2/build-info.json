@@ -6,7 +6,7 @@
   "target": "wasm32-unknown-unknown",
   "crateDirectory": "wasm",
   "abiVersion": 2,
-  "methodologyHash": "0xf57bb8d8dfbba65c19ce66dce69de204dc8974fe72ec8f2e141f04e447b9020f",
-  "wasmHash": "0x3d7ffea52cf385c08a77e24020d08af25562f6cc17766ced62144c7bec89e0de",
+  "methodologyHash": "0xae7b574f9f78c830ebbe407b51ad1b384b94ab10173dc651decdb5121792307c",
+  "wasmHash": "0x6c501cf75708c5116a51f7e064c62b7d7a2d08f95e2e22742211ba992b9450a8",
   "vectors": 2
 }

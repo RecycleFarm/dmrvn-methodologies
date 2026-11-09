@@ -33,18 +33,19 @@ GitHub 빌드 성공은 Registry 승인이나 운영 기본 버전 변경을 뜻
 ## 검증된 빌드
 
 <!-- builds:start -->
-검증 시각: 2026-11-09T07:59:41.661Z (UTC)
-소스 커밋: `633d7fa8d1b3d909df3a0b4da3188e5aefed39b9` · Node v22.22.3
+검증 시각: 2026-11-09T09:42:36.129Z (UTC)
+소스 커밋: `6a73fd0295a1b6520de3e08a152939dc744286f1` · Node v22.23.4
+[GitHub Actions 실행 기록](https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/42595293424)
 [기계 판독용 catalog.json](builds/catalog.json)
 
 | 방법론 | 활동 | WASM | manifest | 정책 | 빌드 정보 |
 |---|---|---|---|---|---|
 | 2003/v1 | 1003 | [44 bytes](builds/pet/2003-v1/methodology.wasm) | [JSON](builds/pet/2003-v1/manifest.json) | Not required (declared inputs) | [wabt 1.0.37, 3 vectors](builds/pet/2003-v1/build-info.json) |
 | 2001/v3 | 1001 | [48 bytes](builds/tumbler/2001-v3/methodology.wasm) | [JSON](builds/tumbler/2001-v3/manifest.json) | [JSON](builds/tumbler/2001-v3/device-policy.json) | [wabt 1.0.37, 6 vectors](builds/tumbler/2001-v3/build-info.json) |
-| 2003/v3 | 1003 | [89567 bytes](builds/pet/2003-v3/methodology.wasm) | [JSON](builds/pet/2003-v3/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/pet/2003-v3/build-info.json) |
-| 2004/v2 | 1004 | [108213 bytes](builds/solar/2004-v2/methodology.wasm) | [JSON](builds/solar/2004-v2/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/solar/2004-v2/build-info.json) |
+| 2003/v3 | 1003 | [89544 bytes](builds/pet/2003-v3/methodology.wasm) | [JSON](builds/pet/2003-v3/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/pet/2003-v3/build-info.json) |
+| 2004/v2 | 1004 | [108215 bytes](builds/solar/2004-v2/methodology.wasm) | [JSON](builds/solar/2004-v2/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/solar/2004-v2/build-info.json) |
 | 2001/v4 | 1001 | [89574 bytes](builds/tumbler/2001-v4/methodology.wasm) | [JSON](builds/tumbler/2001-v4/manifest.json) | [JSON](builds/tumbler/2001-v4/device-policy.json) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 6 vectors](builds/tumbler/2001-v4/build-info.json) |
-| 2001/v5 | 1001 | [89563 bytes](builds/tumbler/2001-v5/methodology.wasm) | [JSON](builds/tumbler/2001-v5/manifest.json) | [JSON](builds/tumbler/2001-v5/device-policy.json) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 8 vectors](builds/tumbler/2001-v5/build-info.json) |
+| 2001/v5 | 1001 | [89570 bytes](builds/tumbler/2001-v5/methodology.wasm) | [JSON](builds/tumbler/2001-v5/manifest.json) | [JSON](builds/tumbler/2001-v5/device-policy.json) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 8 vectors](builds/tumbler/2001-v5/build-info.json) |
 
 ### 2003/v1
 
@@ -58,23 +59,23 @@ GitHub 빌드 성공은 Registry 승인이나 운영 기본 버전 변경을 뜻
 
 ### 2003/v3
 
-- wasmHash: `0xfd484faf619e37f5b790ef70a68d3da343fb43e984594951947a0bad2100703f`
-- methodologyHash: `0x5765869e964ce2cbe1c2f71e2b6d1860e086c2962e814b965c7d92094cf5d138`
+- wasmHash: `0x8d7b604b5b02a30d6dda9927ec9657bb28fbccf15850958d6cdb20f3dd696b53`
+- methodologyHash: `0x4aff2b393d0d4d9fd4e4144845a4ad4058ad693115ce8643310ae81144578370`
 
 ### 2004/v2
 
-- wasmHash: `0x3d7ffea52cf385c08a77e24020d08af25562f6cc17766ced62144c7bec89e0de`
-- methodologyHash: `0xf57bb8d8dfbba65c19ce66dce69de204dc8974fe72ec8f2e141f04e447b9020f`
+- wasmHash: `0x6c501cf75708c5116a51f7e064c62b7d7a2d08f95e2e22742211ba992b9450a8`
+- methodologyHash: `0xae7b574f9f78c830ebbe407b51ad1b384b94ab10173dc651decdb5121792307c`
 
 ### 2001/v4
 
-- wasmHash: `0xc74c5ed3dacd4fbed52fbc7e498e5fab710c88fad4161f19417b80c0cd306668`
-- methodologyHash: `0xf806b0452928a00488164a924a4a0dcaaae25e54ee5e78fb8b1efd4a7c07125f`
+- wasmHash: `0xcdc5f448396e488a473fabbb1d3619ad61c86d5cc174d37c4184867d95d8bb54`
+- methodologyHash: `0xc5e8996442f3b2a061e1ddecdf2b71b44d21da9ac73329388a01ad30f5396cb5`
 
 ### 2001/v5
 
-- wasmHash: `0xf3c202544e230b2e2870848e8aaaa936c65a7f3b4ccf6bf8ce3903927875472f`
-- methodologyHash: `0xb7df58228e3b9f353b6a04478aea5d617e81c0dbec4ca320517ab6e37ce1e432`
+- wasmHash: `0xabd7e7ddaabf74e06fb074280028c58bc5f9f034b832bd239ac5c381b05b4081`
+- methodologyHash: `0x5a65e4015caf6d2627038e369b7779135bec89c3a4acc3aa37a73bc3d2c6666f`
 <!-- builds:end -->
 
 ## 수정·검증
