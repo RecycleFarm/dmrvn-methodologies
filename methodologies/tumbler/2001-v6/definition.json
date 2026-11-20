@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 2,
+  "activityId": 1001,
+  "methodology": { "id": 2001, "version": 6 },
+  "evidenceSchema": "DMRVN_EVIDENCE_V4",
+  "evidenceValidation": { "kind": "TUMBLER_BULK_ITEMS_V1", "version": 1 },
+  "evidenceInputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["batchId", "deviceSerial", "certificateDerBase64", "requestedAmountsMl", "items"],
+    "properties": {
+      "batchId": { "type": "string", "minLength": 1, "maxLength": 128 },
+      "deviceSerial": { "type": "string", "minLength": 1, "maxLength": 128 },
+      "certificateDerBase64": { "type": "string", "minLength": 1 },
+      "requestedAmountsMl": { "type": "array", "minItems": 1, "maxItems": 50, "items": { "type": "integer", "minimum": 1 } },
+      "items": { "type": "array", "minItems": 2, "maxItems": 100, "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["certHash", "counter", "model", "payload", "signatureDerBase64"],
+        "properties": {
+          "certHash": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+          "counter": { "type": "integer", "minimum": 1, "maximum": 4294967295 },
+          "model": { "type": "string", "minLength": 1 },
+          "payload": { "type": "object", "additionalProperties": false, "required": ["timeStamp", "elapsedTick", "distance"], "properties": {
+            "timeStamp": { "type": "string" }, "elapsedTick": { "type": "integer", "minimum": 0 }, "distance": { "type": "integer", "minimum": 0 }
+          } },
+          "signatureDerBase64": { "type": "string", "minLength": 1 }
+        }
+      } }
+    }
+  },
+  "coefficientNotice": "Integration test only: 20 gCO2e per 500 mL PET bottle equivalent. Not a certified carbon-credit factor.",
+  "aggregation": "SUM_VERIFIED_WATER_BEFORE_WASM",
+  "inputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["waterIntakeMl"],
+    "properties": { "waterIntakeMl": { "type": "integer", "minimum": 1, "maximum": 1000000 } }
+  },
+  "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["avoided_pet_co2e"],
+    "properties": {
+      "avoided_pet_co2e": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["value", "unit", "scale"],
+        "properties": {
+          "value": { "type": "string", "pattern": "^[0-9]+$" },
+          "unit": { "const": "gCO2e" },
+          "scale": { "const": 0 }
+        }
+      }
+    }
+  },
+  "runtime": { "kind": "JSON_WASM_V2", "abiVersion": 2, "export": "compute" }
+}

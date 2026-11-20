@@ -81,13 +81,19 @@ async function verifyPackage({ manifest, wasmBytes, vectors, devicePolicy = null
   const declaredInput = manifest.evidenceSchema === 'DMRVN_EVIDENCE_V4'
     && manifest.evidenceValidation?.kind === 'METHODOLOGY_JSON_SCHEMA_V1'
     && manifest.evidenceValidation.version === 1 && !manifest.devicePolicyHash && !devicePolicy;
-  if (manifest.schemaVersion !== 2 || (!tumblerPolicy && !declaredInput)
+  const bulkDevice = manifest.activityId === 1001 && manifest.methodology?.id === 2001
+    && manifest.evidenceSchema === 'DMRVN_EVIDENCE_V4'
+    && manifest.evidenceValidation?.kind === 'TUMBLER_BULK_ITEMS_V1'
+    && manifest.evidenceValidation.version === 1 && manifest.aggregation === 'SUM_VERIFIED_WATER_BEFORE_WASM'
+    && typeof manifest.devicePolicyHash === 'string' && devicePolicy;
+  if (bulkDevice) validator(manifest.evidenceInputSchema);
+  if (manifest.schemaVersion !== 2 || (!tumblerPolicy && !declaredInput && !bulkDevice)
     || manifest.runtime?.kind !== 'JSON_WASM_V2' || manifest.runtime.abiVersion !== 2
     || manifest.runtime.export !== 'compute') throw new Error('Invalid JSON WASM v2 manifest');
-  if (tumblerPolicy && hashJson(devicePolicy).toLowerCase() !== manifest.devicePolicyHash.toLowerCase()) {
+  if ((tumblerPolicy || bulkDevice) && hashJson(devicePolicy).toLowerCase() !== manifest.devicePolicyHash.toLowerCase()) {
     throw new Error('Device policy hash mismatch');
   }
-  if (tumblerPolicy && (devicePolicy.kind !== 'TUMBLER_SIGNED_PAIRS_V1'
+  if ((tumblerPolicy || bulkDevice) && (devicePolicy.kind !== 'TUMBLER_SIGNED_PAIRS_V1'
     || !Array.isArray(devicePolicy.trustedCertificates) || devicePolicy.trustedCertificates.length === 0)) {
     throw new Error('Approved tumbler device policy is required');
   }
