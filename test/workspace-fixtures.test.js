@@ -37,6 +37,14 @@ const packages = [
       'recyclefarm-attestor-desktop/tests/fixtures/json-methodologies/tumbler-2001-v5',
     ],
   },
+  {
+    source: 'tumbler/2001-v6', identity: { id: 2001, version: 6 },
+    artifactDirectory: 'builds',
+    targets: [
+      'recyclefarm-serverless/functions/tests/fixtures/dmrvn-json-abi/tumbler/2001-v6',
+      'recyclefarm-attestor-desktop/tests/fixtures/json-methodologies/tumbler-2001-v6',
+    ],
+  },
 ];
 
 test('syncs exact verified package bytes to serverless and Attestor fixtures and detects later drift', async t => {
@@ -46,7 +54,7 @@ test('syncs exact verified package bytes to serverless and Attestor fixtures and
   const workspaceRoot = path.join(temporaryRoot, 'workspace');
 
   for (const [index, item] of packages.entries()) {
-    const sourceDirectory = path.join(repositoryRoot, 'dist', item.source);
+    const sourceDirectory = path.join(repositoryRoot, item.artifactDirectory || 'dist', item.source);
     await fs.mkdir(sourceDirectory, { recursive: true });
     const wasm = Buffer.from(`verified-wasm-${index}`);
     const manifest = {

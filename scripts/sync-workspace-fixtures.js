@@ -37,6 +37,15 @@ const packages = [
       'recyclefarm-attestor-desktop/tests/fixtures/json-methodologies/tumbler-2001-v5',
     ],
   },
+  {
+    identity: { id: 2001, version: 6 },
+    source: 'tumbler/2001-v6',
+    artifactDirectory: 'builds',
+    targets: [
+      'recyclefarm-serverless/functions/tests/fixtures/dmrvn-json-abi/tumbler/2001-v6',
+      'recyclefarm-attestor-desktop/tests/fixtures/json-methodologies/tumbler-2001-v6',
+    ],
+  },
 ];
 
 const packageFiles = ['manifest.json', 'methodology.wasm', 'vectors.json', 'device-policy.json'];
@@ -46,7 +55,7 @@ async function syncWorkspaceFixtures({ repositoryRoot, workspaceRoot, check = fa
   const workspace = path.resolve(workspaceRoot || path.dirname(root));
 
   for (const item of packages) {
-    const sourceDirectory = path.join(root, 'dist', item.source);
+    const sourceDirectory = path.join(root, item.artifactDirectory || 'dist', item.source);
     const manifest = JSON.parse(await fs.readFile(path.join(sourceDirectory, 'manifest.json'), 'utf8'));
     const wasm = await fs.readFile(path.join(sourceDirectory, 'methodology.wasm'));
     const actualWasmHash = utils.keccak256(wasm);
