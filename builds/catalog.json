@@ -1,8 +1,8 @@
 {
-  "builtAt": "2026-11-09T09:42:36.129Z",
-  "sourceCommit": "6a73fd0295a1b6520de3e08a152939dc744286f1",
+  "builtAt": "2026-11-20T02:19:16.035Z",
+  "sourceCommit": "0d60a2f24b6f5061213a5d4dba5afb3c6942709c",
   "nodeVersion": "v22.23.4",
-  "runUrl": "https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/42595293424",
+  "runUrl": "https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/44659681403",
   "packages": [
     {
       "methodology": {
@@ -412,6 +412,75 @@
       },
       "evidenceValidation": {
         "kind": "TUMBLER_SIGNED_PAIRS_V1",
+        "version": 1
+      },
+      "hasDevicePolicy": true
+    },
+    {
+      "methodology": {
+        "id": 2001,
+        "version": 6
+      },
+      "activityId": 1001,
+      "path": "builds/tumbler/2001-v6",
+      "wasmBytes": 89574,
+      "wasmHash": "0xcdc5f448396e488a473fabbb1d3619ad61c86d5cc174d37c4184867d95d8bb54",
+      "methodologyHash": "0xbcadab2bf1481e14014c0b089a680c2ad6054459183eb64e9ef62f42978e925d",
+      "compiler": "rustc rustc 1.85.1 (4eb161250 2025-03-15)",
+      "vectors": 6,
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "waterIntakeMl"
+        ],
+        "properties": {
+          "waterIntakeMl": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          }
+        }
+      },
+      "outputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "avoided_pet_co2e"
+        ],
+        "properties": {
+          "avoided_pet_co2e": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "unit",
+              "scale"
+            ],
+            "properties": {
+              "value": {
+                "type": "string",
+                "pattern": "^[0-9]+$"
+              },
+              "unit": {
+                "const": "gCO2e"
+              },
+              "scale": {
+                "const": 0
+              }
+            }
+          }
+        }
+      },
+      "runtime": {
+        "kind": "JSON_WASM_V2",
+        "abiVersion": 2,
+        "export": "compute"
+      },
+      "evidenceValidation": {
+        "kind": "TUMBLER_BULK_ITEMS_V1",
         "version": 1
       },
       "hasDevicePolicy": true
