@@ -33,9 +33,9 @@ GitHub 빌드 성공은 Registry 승인이나 운영 기본 버전 변경을 뜻
 ## 검증된 빌드
 
 <!-- builds:start -->
-검증 시각: 2026-11-20T02:19:16.035Z (UTC)
-소스 커밋: `0d60a2f24b6f5061213a5d4dba5afb3c6942709c` · Node v22.23.4
-[GitHub Actions 실행 기록](https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/44659681403)
+검증 시각: 2026-11-20T03:34:22.469Z (UTC)
+소스 커밋: `ee72ffc5e42596fc7da1d670d9c32a5ff632758e` · Node v22.23.4
+[GitHub Actions 실행 기록](https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/44668427737)
 [기계 판독용 catalog.json](builds/catalog.json)
 
 | 방법론 | 활동 | WASM | manifest | 정책 | 빌드 정보 |
