@@ -8,25 +8,20 @@ const { discoverPackages: discoverJsonAbiPackages, verifyBuiltPackage } = requir
 
 async function updateCatalog(root, metadata) {
   const packages = await discoverPackages(root);
-  const catalog = [];
+  const builtPackages = [];
   for (const item of packages) {
     const relative = path.relative(path.join(root, 'methodologies'), item.source);
     const dist = path.join(root, 'dist', relative);
     await verifyDirectory(dist);
     const manifest = JSON.parse(await fs.readFile(path.join(dist, 'manifest.json'), 'utf8'));
     const build = JSON.parse(await fs.readFile(path.join(dist, 'build-info.json'), 'utf8'));
-    const target = path.join(root, 'builds', relative);
-    await fs.mkdir(target, { recursive: true });
-    for (const name of ['manifest.json', 'methodology.wasm', ...(manifest.devicePolicyHash ? ['device-policy.json'] : []), 'vectors.json', 'build-info.json']) {
-      await fs.copyFile(path.join(dist, name), path.join(target, name));
-    }
-    catalog.push({ methodology: manifest.methodology, activityId: manifest.activityId,
+    builtPackages.push({ methodology: manifest.methodology, activityId: manifest.activityId,
       path: `builds/${relative.split(path.sep).join('/')}`, wasmBytes: (await fs.stat(path.join(dist, 'methodology.wasm'))).size,
       wasmHash: manifest.wasmHash, methodologyHash: build.methodologyHash,
       compiler: `${build.compiler} ${build.compilerVersion}`, vectors: build.vectors,
       inputSchema: manifest.inputSchema, outputSchema: manifest.outputSchema, runtime: manifest.runtime,
       ...(manifest.evidenceValidation ? { evidenceValidation: manifest.evidenceValidation } : {}),
-      hasDevicePolicy: Boolean(manifest.devicePolicyHash) });
+      hasDevicePolicy: Boolean(manifest.devicePolicyHash), distDirectory: dist });
   }
   for (const source of await discoverJsonAbiPackages(root)) {
     const relative = path.relative(path.join(root, 'methodologies'), source);
@@ -34,20 +29,43 @@ async function updateCatalog(root, metadata) {
     const dist = verified.outDir;
     const manifest = verified.manifest;
     const build = JSON.parse(await fs.readFile(path.join(dist, 'build-info.json'), 'utf8'));
-    const target = path.join(root, 'builds', relative);
-    await fs.mkdir(target, { recursive: true });
-    for (const name of ['manifest.json', 'methodology.wasm', ...(manifest.devicePolicyHash ? ['device-policy.json'] : []), 'vectors.json', 'build-info.json']) {
-      await fs.copyFile(path.join(dist, name), path.join(target, name));
-    }
-    catalog.push({ methodology: manifest.methodology, activityId: manifest.activityId,
+    builtPackages.push({ methodology: manifest.methodology, activityId: manifest.activityId,
       path: `builds/${relative.split(path.sep).join('/')}`,
       wasmBytes: (await fs.stat(path.join(dist, 'methodology.wasm'))).size,
       wasmHash: manifest.wasmHash, methodologyHash: build.methodologyHash,
       compiler: `${build.compiler} ${build.compilerVersion}`, vectors: build.vectors,
       inputSchema: manifest.inputSchema, outputSchema: manifest.outputSchema, runtime: manifest.runtime,
-      evidenceValidation: manifest.evidenceValidation, hasDevicePolicy: Boolean(manifest.devicePolicyHash) });
+      evidenceValidation: manifest.evidenceValidation, hasDevicePolicy: Boolean(manifest.devicePolicyHash),
+      distDirectory: dist });
   }
-  const record = { ...metadata, packages: catalog };
+  const activeIndex = JSON.parse(await fs.readFile(path.join(root, 'readme-methodologies.json'), 'utf8'));
+  if (!Array.isArray(activeIndex.selected) || activeIndex.selected.length === 0) {
+    throw new Error('readme-methodologies.json must select at least one active package');
+  }
+  const seenMethodologies = new Set();
+  const catalog = [];
+  for (const { methodologyId, methodologyVersion } of activeIndex.selected) {
+    if (!Number.isSafeInteger(methodologyId) || methodologyId <= 0
+      || !Number.isSafeInteger(methodologyVersion) || methodologyVersion <= 0) {
+      throw new Error('README methodology identity is invalid');
+    }
+    if (seenMethodologies.has(methodologyId)) {
+      throw new Error(`README selects more than one version for methodology ${methodologyId}`);
+    }
+    seenMethodologies.add(methodologyId);
+    const item = builtPackages.find(entry => entry.methodology.id === methodologyId
+      && entry.methodology.version === methodologyVersion);
+    if (!item) throw new Error(`Selected active methodology ${methodologyId}/v${methodologyVersion} is not built`);
+    const relative = item.path.replace(/^builds\//, '');
+    const target = path.join(root, 'builds', relative);
+    await fs.mkdir(target, { recursive: true });
+    for (const name of ['manifest.json', 'methodology.wasm', ...(item.hasDevicePolicy ? ['device-policy.json'] : []), 'vectors.json', 'build-info.json']) {
+      await fs.copyFile(path.join(item.distDirectory, name), path.join(target, name));
+    }
+    delete item.distDirectory;
+    catalog.push(item);
+  }
+  const record = { ...metadata, registryProject: activeIndex.registryProject, packages: catalog };
   await fs.writeFile(path.join(root, 'builds/catalog.json'), `${JSON.stringify(record, null, 2)}\n`);
   const lines = [`검증 시각: ${metadata.builtAt} (UTC)`,
     `소스 커밋: \`${metadata.sourceCommit}\` · Node ${metadata.nodeVersion}`,

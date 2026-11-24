@@ -104,5 +104,5 @@
     "abiVersion": 2,
     "export": "compute"
   },
-  "wasmHash": "0x6c501cf75708c5116a51f7e064c62b7d7a2d08f95e2e22742211ba992b9450a8"
+  "wasmHash": "0x3d7ffea52cf385c08a77e24020d08af25562f6cc17766ced62144c7bec89e0de"
 }

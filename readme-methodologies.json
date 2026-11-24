@@ -1,0 +1,9 @@
+{
+  "registryProject": "recyclefarm-test",
+  "registryCollection": "dmrvnMethodologies",
+  "selected": [
+    { "methodologyId": 2001, "methodologyVersion": 6 },
+    { "methodologyId": 2003, "methodologyVersion": 3 },
+    { "methodologyId": 2004, "methodologyVersion": 2 }
+  ]
+}

@@ -145,6 +145,10 @@ test('real verification CLI exits successfully or fails the job on bad vectors',
 test('publishes verified WASM files and updates only the README catalog', async t => {
   const { root, add } = await fixture(t);
   await add('tumbler', 2001, 3);
+  await fs.writeFile(path.join(root, 'readme-methodologies.json'), JSON.stringify({
+    registryProject: 'recyclefarm-test',
+    selected: [{ methodologyId: 2001, methodologyVersion: 3 }],
+  }));
   await verifyAll(root);
   await fs.writeFile(path.join(root, 'README.md'), 'Intro\n<!-- builds:start -->\nold\n<!-- builds:end -->\nFooter\n');
   const metadata = { builtAt: '2026-10-06T00:00:00.000Z', sourceCommit: 'abc123', nodeVersion: 'v22', runUrl: 'https://github.com/example/repo/actions/runs/1' };
@@ -158,9 +162,32 @@ test('publishes verified WASM files and updates only the README catalog', async 
   assert.match(readme, /2026-10-06T00:00:00.000Z/);
   const module = await fs.readFile(path.join(root, 'builds/tumbler/2001-v3/methodology.wasm'));
   assert.deepEqual(module, await fs.readFile(path.join(root, 'dist/tumbler/2001-v3/methodology.wasm')));
-  assert.equal(JSON.parse(await fs.readFile(path.join(root, 'builds/catalog.json'), 'utf8')).sourceCommit, 'abc123');
+  const catalog = JSON.parse(await fs.readFile(path.join(root, 'builds/catalog.json'), 'utf8'));
+  assert.equal(catalog.sourceCommit, 'abc123');
+  assert.equal(catalog.registryProject, 'recyclefarm-test');
+  assert.deepEqual(catalog.packages.map(item => item.methodology), [{ id: 2001, version: 3 }]);
   await updateCatalog(root, metadata);
   assert.equal(await fs.readFile(path.join(root, 'README.md'), 'utf8'), readme);
+});
+test('requires one selected version per methodology and rejects missing package versions', async t => {
+  const { root, add } = await fixture(t);
+  await add('tumbler', 2001, 3);
+  await add('tumbler', 2001, 4);
+  await verifyAll(root);
+  await fs.writeFile(path.join(root, 'README.md'), '<!-- builds:start -->\nold\n<!-- builds:end -->');
+  const indexPath = path.join(root, 'readme-methodologies.json');
+  await fs.writeFile(indexPath, JSON.stringify({ selected: [
+    { methodologyId: 2001, methodologyVersion: 3 },
+    { methodologyId: 2001, methodologyVersion: 4 },
+  ] }));
+  await assert.rejects(updateCatalog(root, {}), /more than one version/);
+  await fs.writeFile(indexPath, JSON.stringify({ selected: [{ methodologyId: 2001, methodologyVersion: 5 }] }));
+  await assert.rejects(updateCatalog(root, {}), /is not built/);
+  await fs.writeFile(indexPath, JSON.stringify({ selected: [{ methodologyId: 2001, methodologyVersion: 4 }] }));
+  const catalog = await updateCatalog(root, { builtAt: 'now', sourceCommit: 'abc', nodeVersion: 'v22' });
+  assert.deepEqual(catalog.packages.map(item => item.methodology), [{ id: 2001, version: 4 }]);
+  assert.match(await fs.readFile(path.join(root, 'README.md'), 'utf8'), /2001\/v4/);
+  assert.doesNotMatch(await fs.readFile(path.join(root, 'README.md'), 'utf8'), /2001\/v3/);
 });
 test('does not publish a corrupted WASM package or update the README', async t => {
   const { root, add } = await fixture(t);

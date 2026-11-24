@@ -10,83 +10,58 @@ DMRVN 노드가 내려받아 실행할 방법론 소스와 검증된 WASM 패키
 
 기존 패키지는 legacy ABI를 유지합니다. 신규 범용 방법론은 `JSON_WASM_V2`를 사용하며 Rust 툴체인은 [`wasm/json-abi/rust-toolchain.toml`](wasm/json-abi/rust-toolchain.toml)에 고정합니다. 신규 ABI는 `memory`, `alloc(length)`, `compute(inputPointer, inputLength)`, `result_len()`, `dealloc(pointer, length)`를 export하고 imports를 허용하지 않습니다. 입력·출력은 UTF-8 JSON 객체이며 manifest의 JSON Schema 2020-12로 검사합니다. 이 실행기와 ABI는 기존 legacy 패키지를 변경하지 않습니다.
 
-현재 JSON ABI 시험 패키지:
+현재 ACTIVE Registry에서 방법론별 최신 버전만 표시합니다. 과거 버전 빌드와 패키지는 보관되며, 이미 생성된 Claim은 Claim에 고정된 버전과 hash를 계속 사용합니다. README 목록은 `readme-methodologies.json`의 Registry 확인 결과를 사용하며, 신규 버전의 활성화·비활성화 후 해당 파일을 함께 갱신해야 합니다.
+
+현재 JSON ABI 패키지:
 
 | 방법론 | JSON 입력 예 | JSON 출력 예 | 의미 |
 |---|---|---|---|
 | PET 2003/v3 | `{"petBottleCount":3}` | `{"estimated_co2e":{"value":"60","unit":"gCO2e","scale":0}}` | 통합 시험용 계수이며 실제 재활용이나 공식 감축량 증명이 아님 |
-| 텀블러 2001/v4 | 서명 측정 합계의 `{"waterIntakeMl":850}` | `{"avoided_pet_co2e":{"value":"20","unit":"gCO2e","scale":0}}` | 기존 승인본 보존. v4 계산식은 변경하지 않음 |
-| 텀블러 2001/v5 | 서명 측정 합계의 `{"waterIntakeMl":850}` | `{"avoided_pet_co2e":{"value":"85","unit":"gCO2e","scale":0}}` | Claim별 합산량에 MRV 컨트랙트 변환식을 적용하는 JSON ABI v2 시험 |
+| 텀블러 2001/v6 | 검증된 총량 `{"waterIntakeMl":850}` | `{"avoided_pet_co2e":{"value":"20","unit":"gCO2e","scale":0}}` | 최신 ACTIVE Registry 버전. 기기 이벤트는 별도 Evidence 검증 입력 |
 | 태양광 2004/v2 | 측정 배열, 배출계수, 프로젝트 배출량 | 기준선·프로젝트 배출량·순감축량 객체와 측정 건수 | JSON 입출력 통합 시험용이며 승인된 탄소 방법론이 아님 |
 
 | 샘플 | 입력 | 검증 | 결과 |
 |---|---|---|---|
-| PET 1003 / 2003/v1 | `petBottleCount=3` (1..100000) | `DECLARED_INPUTS_V1`: 파트너 신고 입력 | `estimated_co2e=60 gCO2e` |
-| 텀블러 1001 / 2001/v4 | 서명 측정 합계 850 mL | 기기 서명·정책·예약 검증 + JSON ABI v2 | 기존 출력 `avoided_pet_co2e=20 gCO2e` |
-| 텀블러 1001 / 2001/v5 | 서명 측정 합계 850 mL | 기기 서명·정책·예약 검증 + JSON ABI v2 | Claim 단위 `floor(850 / 10) = 85`, `avoided_pet_co2e=85 gCO2e` |
+| PET 1003 / 2003/v3 | `petBottleCount=3` (1..100000) | JSON Schema 입력 검증: 파트너 신고 입력 | `estimated_co2e=60 gCO2e` |
+| 텀블러 1001 / 2001/v6 | 서명 기기 이벤트 (`items`), WASM 입력은 검증 합계 850 mL | 기기 서명·정책 검증 + JSON ABI v2 | `avoided_pet_co2e=20 gCO2e` |
 | 태양광 1004 / 2004/v2 | 발전량 측정 2건과 시험용 배출값 | JSON Schema 입력 검증 + JSON ABI v2 | 기준선 `450.1125`, 순감축량 `440.1125` tCO2e 시험 객체 |
 
-PET는 시험용 `count × 20`입니다. 텀블러 v4는 기존 계산식을 보존하고, v5는 텀블러 MRV 컨트랙트와 같은 `carbonReducedG = floor(waterIntakeMl / 10)`을 Claim별 총량에 적용합니다. 컨트랙트가 여러 배치 합계에 한 번 내림하는 것과 달리 DMRVN은 Claim마다 계산합니다. 이 결과는 공식 탄소크레딧 인증을 뜻하지 않습니다. PET 패키지도 실제 폐기·재활용이나 공식 감축량을 증명하지 않습니다. 텀블러 v3 legacy ABI와 v4 JSON ABI는 각각 기존 Claim 실행을 위해 보존됩니다.
+PET는 시험용 `count × 20`이며 공식 탄소크레딧 인증이나 실제 폐기·재활용을 증명하지 않습니다. 텀블러의 현재 최신 ACTIVE 버전은 검증된 500 mL당 20 gCO2e를 계산합니다. 이전 방법론 버전의 WASM·manifest·정책 파일은 이미 고정된 Claim을 처리할 수 있도록 보존하지만, 이 요약 및 자동 생성 카탈로그에는 방법론별 최신 ACTIVE 버전 하나만 표시합니다.
 
-GitHub 빌드 성공은 Registry 승인이나 운영 기본 버전 변경을 뜻하지 않습니다. 노드는 가장 높은 버전이 아니라 **Claim에 고정된 버전·hash**를 사용합니다.
+GitHub 빌드 성공만으로 Registry 승인을 뜻하지 않습니다. README 선택 목록은 Firestore `ACTIVE` Registry 확인에 맞춰 갱신해야 합니다. 새 요청은 활동의 기본 포인터를 따르며, 이미 만들어진 Claim은 **Claim에 고정된 버전·hash**를 사용합니다. 최신 ACTIVE 버전과 현재 기본 포인터는 서로 다를 수 있습니다.
 
 ## 검증된 빌드
 
 <!-- builds:start -->
-검증 시각: 2026-11-20T03:34:22.469Z (UTC)
-소스 커밋: `ee72ffc5e42596fc7da1d670d9c32a5ff632758e` · Node v22.23.4
-[GitHub Actions 실행 기록](https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/44668427737)
+검증 시각: 2026-11-24T07:16:28.623Z (UTC)
+소스 커밋: `ee72ffc5e42596fc7da1d670d9c32a5ff632758e` · Node v22.22.3
 [기계 판독용 catalog.json](builds/catalog.json)
 
 | 방법론 | 활동 | WASM | manifest | 정책 | 빌드 정보 |
 |---|---|---|---|---|---|
-| 2003/v1 | 1003 | [44 bytes](builds/pet/2003-v1/methodology.wasm) | [JSON](builds/pet/2003-v1/manifest.json) | Not required (declared inputs) | [wabt 1.0.37, 3 vectors](builds/pet/2003-v1/build-info.json) |
-| 2001/v3 | 1001 | [48 bytes](builds/tumbler/2001-v3/methodology.wasm) | [JSON](builds/tumbler/2001-v3/manifest.json) | [JSON](builds/tumbler/2001-v3/device-policy.json) | [wabt 1.0.37, 6 vectors](builds/tumbler/2001-v3/build-info.json) |
-| 2003/v3 | 1003 | [89544 bytes](builds/pet/2003-v3/methodology.wasm) | [JSON](builds/pet/2003-v3/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/pet/2003-v3/build-info.json) |
-| 2004/v2 | 1004 | [108215 bytes](builds/solar/2004-v2/methodology.wasm) | [JSON](builds/solar/2004-v2/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/solar/2004-v2/build-info.json) |
-| 2001/v4 | 1001 | [89574 bytes](builds/tumbler/2001-v4/methodology.wasm) | [JSON](builds/tumbler/2001-v4/manifest.json) | [JSON](builds/tumbler/2001-v4/device-policy.json) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 6 vectors](builds/tumbler/2001-v4/build-info.json) |
-| 2001/v5 | 1001 | [89570 bytes](builds/tumbler/2001-v5/methodology.wasm) | [JSON](builds/tumbler/2001-v5/manifest.json) | [JSON](builds/tumbler/2001-v5/device-policy.json) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 8 vectors](builds/tumbler/2001-v5/build-info.json) |
 | 2001/v6 | 1001 | [89574 bytes](builds/tumbler/2001-v6/methodology.wasm) | [JSON](builds/tumbler/2001-v6/manifest.json) | [JSON](builds/tumbler/2001-v6/device-policy.json) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 6 vectors](builds/tumbler/2001-v6/build-info.json) |
-
-### 2003/v1
-
-- wasmHash: `0x60265f20ca003ae4b20f0bca18f73d0d4e9bb7c9497627d7f680113dac4c91d9`
-- methodologyHash: `0xdcc09ee621f2e388dd858f8f7399dbf2725cbec3526d52b0dd06909da892ff77`
-
-### 2001/v3
-
-- wasmHash: `0xcff1a1905d2541aabdbff86181bf0314b6ad5b93fb175469a332b89ee6e9ba84`
-- methodologyHash: `0x9591f325e7ce716ab9a4a61a21cc5e5a3afbcf814092636f0a861febc236b03c`
-
-### 2003/v3
-
-- wasmHash: `0x8d7b604b5b02a30d6dda9927ec9657bb28fbccf15850958d6cdb20f3dd696b53`
-- methodologyHash: `0x4aff2b393d0d4d9fd4e4144845a4ad4058ad693115ce8643310ae81144578370`
-
-### 2004/v2
-
-- wasmHash: `0x6c501cf75708c5116a51f7e064c62b7d7a2d08f95e2e22742211ba992b9450a8`
-- methodologyHash: `0xae7b574f9f78c830ebbe407b51ad1b384b94ab10173dc651decdb5121792307c`
-
-### 2001/v4
-
-- wasmHash: `0xcdc5f448396e488a473fabbb1d3619ad61c86d5cc174d37c4184867d95d8bb54`
-- methodologyHash: `0xc5e8996442f3b2a061e1ddecdf2b71b44d21da9ac73329388a01ad30f5396cb5`
-
-### 2001/v5
-
-- wasmHash: `0xabd7e7ddaabf74e06fb074280028c58bc5f9f034b832bd239ac5c381b05b4081`
-- methodologyHash: `0x5a65e4015caf6d2627038e369b7779135bec89c3a4acc3aa37a73bc3d2c6666f`
+| 2003/v3 | 1003 | [89567 bytes](builds/pet/2003-v3/methodology.wasm) | [JSON](builds/pet/2003-v3/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/pet/2003-v3/build-info.json) |
+| 2004/v2 | 1004 | [108213 bytes](builds/solar/2004-v2/methodology.wasm) | [JSON](builds/solar/2004-v2/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/solar/2004-v2/build-info.json) |
 
 ### 2001/v6
 
-- wasmHash: `0xcdc5f448396e488a473fabbb1d3619ad61c86d5cc174d37c4184867d95d8bb54`
-- methodologyHash: `0xbcadab2bf1481e14014c0b089a680c2ad6054459183eb64e9ef62f42978e925d`
+- wasmHash: `0xc74c5ed3dacd4fbed52fbc7e498e5fab710c88fad4161f19417b80c0cd306668`
+- methodologyHash: `0xee566cecbf9217e1a28d93cd1286aead1cb4af859a21fdf53fec45cc96c6f3f1`
+
+### 2003/v3
+
+- wasmHash: `0xfd484faf619e37f5b790ef70a68d3da343fb43e984594951947a0bad2100703f`
+- methodologyHash: `0x5765869e964ce2cbe1c2f71e2b6d1860e086c2962e814b965c7d92094cf5d138`
+
+### 2004/v2
+
+- wasmHash: `0x3d7ffea52cf385c08a77e24020d08af25562f6cc17766ced62144c7bec89e0de`
+- methodologyHash: `0xf57bb8d8dfbba65c19ce66dce69de204dc8974fe72ec8f2e141f04e447b9020f`
 <!-- builds:end -->
 
 ## 수정·검증
 
-legacy ABI 방법론은 `methodologies/<분류>/<ID>-v<version>/`에 `definition.json`, `methodology.wat`, `vectors.json`을 둡니다. 신규 JSON ABI 방법론은 같은 디렉터리에 `definition.json`, `vectors.json`, `package-config.json`과 독립 `wasm/` Cargo crate를 둡니다. `package-config.json`은 `JSON_WASM_V2` 런타임과 crate 디렉터리를 지정하고, crate는 공용 ABI 매크로를 호출해 자기 계산 함수만 연결합니다. 새 방법론은 공용 Rust 런타임·빌더에 방법론 이름이나 계산 분기를 추가하지 않습니다. 새 입력·출력은 JSON Schema로 정의하고 Rust 계산 함수에서 JSON을 직접 파싱·생성합니다. 기존 승인 버전은 수정하지 않습니다.
+legacy ABI 방법론은 `methodologies/<분류>/<ID>-v<version>/`에 `definition.json`, `methodology.wat`, `vectors.json`을 둡니다. 신규 JSON ABI 방법론은 같은 디렉터리에 `definition.json`, `vectors.json`, `package-config.json`과 독립 `wasm/` Cargo crate를 둡니다. `package-config.json`은 `JSON_WASM_V2` 런타임과 crate 디렉터리를 지정하고, crate는 공용 ABI 매크로를 호출해 자기 계산 함수만 연결합니다. 새 방법론은 공용 Rust 런타임·빌더에 방법론 이름이나 계산 분기를 추가하지 않습니다. 새 입력·출력은 JSON Schema로 정의하고 Rust 계산 함수에서 JSON을 직접 파싱·생성합니다. 신규/폐기 버전이 Registry에서 활성 상태로 바뀌면 `readme-methodologies.json`을 함께 갱신합니다. 이전 Claim 실행에 필요한 기존 빌드 산출물은 삭제하지 않습니다.
 
 ```bash
 npm run setup:wasm
