@@ -33,30 +33,31 @@ GitHub 빌드 성공만으로 Registry 승인을 뜻하지 않습니다. README 
 ## 검증된 빌드
 
 <!-- builds:start -->
-검증 시각: 2026-11-24T07:16:28.623Z (UTC)
-소스 커밋: `ee72ffc5e42596fc7da1d670d9c32a5ff632758e` · Node v22.22.3
+검증 시각: 2026-11-25T00:49:41.288Z (UTC)
+소스 커밋: `96196c41ec2f53feca02c3a5b5a412ce1478340f` · Node v22.23.5
+[GitHub Actions 실행 기록](https://github.com/RecycleFarm/dmrvn-methodologies/actions/runs/45520850331)
 [기계 판독용 catalog.json](builds/catalog.json)
 
 | 방법론 | 활동 | WASM | manifest | 정책 | 빌드 정보 |
 |---|---|---|---|---|---|
 | 2001/v6 | 1001 | [89574 bytes](builds/tumbler/2001-v6/methodology.wasm) | [JSON](builds/tumbler/2001-v6/manifest.json) | [JSON](builds/tumbler/2001-v6/device-policy.json) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 6 vectors](builds/tumbler/2001-v6/build-info.json) |
-| 2003/v3 | 1003 | [89567 bytes](builds/pet/2003-v3/methodology.wasm) | [JSON](builds/pet/2003-v3/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/pet/2003-v3/build-info.json) |
-| 2004/v2 | 1004 | [108213 bytes](builds/solar/2004-v2/methodology.wasm) | [JSON](builds/solar/2004-v2/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/solar/2004-v2/build-info.json) |
+| 2003/v3 | 1003 | [89544 bytes](builds/pet/2003-v3/methodology.wasm) | [JSON](builds/pet/2003-v3/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/pet/2003-v3/build-info.json) |
+| 2004/v2 | 1004 | [108215 bytes](builds/solar/2004-v2/methodology.wasm) | [JSON](builds/solar/2004-v2/manifest.json) | Not required (declared inputs) | [rustc rustc 1.85.1 (4eb161250 2025-03-15), 2 vectors](builds/solar/2004-v2/build-info.json) |
 
 ### 2001/v6
 
-- wasmHash: `0xc74c5ed3dacd4fbed52fbc7e498e5fab710c88fad4161f19417b80c0cd306668`
-- methodologyHash: `0xee566cecbf9217e1a28d93cd1286aead1cb4af859a21fdf53fec45cc96c6f3f1`
+- wasmHash: `0xcdc5f448396e488a473fabbb1d3619ad61c86d5cc174d37c4184867d95d8bb54`
+- methodologyHash: `0xbcadab2bf1481e14014c0b089a680c2ad6054459183eb64e9ef62f42978e925d`
 
 ### 2003/v3
 
-- wasmHash: `0xfd484faf619e37f5b790ef70a68d3da343fb43e984594951947a0bad2100703f`
-- methodologyHash: `0x5765869e964ce2cbe1c2f71e2b6d1860e086c2962e814b965c7d92094cf5d138`
+- wasmHash: `0x8d7b604b5b02a30d6dda9927ec9657bb28fbccf15850958d6cdb20f3dd696b53`
+- methodologyHash: `0x4aff2b393d0d4d9fd4e4144845a4ad4058ad693115ce8643310ae81144578370`
 
 ### 2004/v2
 
-- wasmHash: `0x3d7ffea52cf385c08a77e24020d08af25562f6cc17766ced62144c7bec89e0de`
-- methodologyHash: `0xf57bb8d8dfbba65c19ce66dce69de204dc8974fe72ec8f2e141f04e447b9020f`
+- wasmHash: `0x6c501cf75708c5116a51f7e064c62b7d7a2d08f95e2e22742211ba992b9450a8`
+- methodologyHash: `0xae7b574f9f78c830ebbe407b51ad1b384b94ab10173dc651decdb5121792307c`
 <!-- builds:end -->
 
 ## 수정·검증
